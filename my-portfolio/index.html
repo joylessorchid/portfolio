@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#090907">
+<title>Николай Скориков — Junior DevOps Engineer</title>
+<meta name="description" content="Junior DevOps Engineer · Linux · Docker · Proxmox · n8n. 2+ years operating production infrastructure for 3,300+ users.">
+
+<!--
+=============================================================
+HOW TO ADD SCREENSHOTS
+=============================================================
+1. Create a folder `screenshots/` next to this index.html
+2. Drop in your images using these exact filenames:
+     - proxmox-dashboard.png
+     - bot-telegram.png
+     - bot-grafana.png
+     - asterisk-cdr.png
+     - crm-leadvertex.png
+     - landing-product.png
+     - n8n-workflow.png
+     - homelab-architecture.png
+3. If file is missing — placeholder shows automatically.
+4. Click any screenshot to open lightbox.
+=============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --bg: #090907;
+  --bg2: #111110;
+  --bg3: #1c1c1a;
+  --fg: #eae8e2;
+  --fg2: #888680;
+  --fg3: #444240;
+  --accent: #c8f060;
+  --accent2: #f0c060;
+  --border: rgba(234,232,226,0.08);
+  --border2: rgba(234,232,226,0.16);
+  --font-d: 'Syne', sans-serif;
+  --font-b: 'DM Mono', monospace;
+  --font-s: 'Instrument Serif', serif;
+  --pad-x: 1.25rem;
+  --gap-section: 4rem;
+}
+@media (min-width: 720px) {
+  :root { --pad-x: 2rem; --gap-section: 6rem; }
+}
+@media (min-width: 1024px) {
+  :root { --pad-x: 2.5rem; --gap-section: 7rem; }
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-b);
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+::selection { background: var(--accent); color: var(--bg); }
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; }
+
+/* ===== EFFECTS ===== */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9990; opacity: 0.45;
+}
+#scroll-bar {
+  position: fixed; top: 0; left: 0;
+  height: 2px; width: 0%;
+  background: var(--accent);
+  z-index: 500;
+  transition: width 0.05s linear;
+}
+
+/* ===== CURSOR (desktop only) ===== */
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: none; }
+  a, button, [onclick], .shot, .project-card { cursor: none; }
+  #cursor {
+    position: fixed; width: 8px; height: 8px;
+    background: var(--accent); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transition: width 0.3s, height 0.3s;
+    mix-blend-mode: difference;
+    will-change: transform;
+    top: 0; left: 0;
+  }
+  #cursor-ring {
+    position: fixed; width: 36px; height: 36px;
+    border: 1px solid rgba(200, 240, 96, 0.3);
+    border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transition: width 0.25s, height 0.25s, border-color 0.25s;
+    will-change: transform;
+    top: 0; left: 0;
+  }
+  body.hover #cursor { width: 14px; height: 14px; }
+  body.hover #cursor-ring { width: 48px; height: 48px; border-color: var(--accent); }
+}
+@media (hover: none), (pointer: coarse) {
+  #cursor, #cursor-ring { display: none; }
+}
+
+/* ===== LAYOUT ===== */
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: var(--pad-x);
+  padding-right: var(--pad-x);
+}
+
+/* ===== HEADER ===== */
+header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 0.85rem var(--pad-x);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 9998;
+  background: linear-gradient(180deg, rgba(9,9,7,0.92), rgba(9,9,7,0));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  gap: 1rem;
+}
+.logo {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  flex-shrink: 0;
+}
+.logo span { color: var(--accent); }
+
+nav.desk {
+  display: none;
+  gap: 1.6rem;
+  align-items: center;
+}
+nav.desk a {
+  color: var(--fg2);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+nav.desk a:hover { color: var(--accent); }
+nav.desk a .num { color: var(--fg3); margin-right: 0.4rem; font-size: 0.65rem; }
+
+.head-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.lang-btn {
+  border: 1px solid var(--border2);
+  color: var(--fg2);
+  padding: 0.45rem 0.7rem;
+  font-family: var(--font-b);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  min-height: 36px;
+}
+.lang-btn:hover, .lang-btn:focus { color: var(--accent); border-color: var(--accent); }
+
+#mob-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid var(--border2);
+  padding: 0;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+}
+#mob-btn span {
+  display: block; width: 18px; height: 1px;
+  background: var(--fg);
+  transition: all 0.3s;
+}
+#mob-btn.open span:nth-child(1) { transform: rotate(45deg) translate(4px, 4px); }
+#mob-btn.open span:nth-child(2) { opacity: 0; }
+#mob-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); }
+
+#mob-nav {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9995;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 5rem var(--pad-x) 2rem;
+}
+#mob-nav.open { display: flex; }
+#mob-nav a {
+  font-family: var(--font-d);
+  font-weight: 500;
+  font-size: 1.5rem;
+  color: var(--fg);
+  letter-spacing: -0.02em;
+}
+#mob-nav a .num {
+  font-family: var(--font-b);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  margin-right: 0.6rem;
+}
+
+@media (min-width: 900px) {
+  nav.desk { display: flex; }
+  #mob-btn { display: none; }
+}
+
+/* ===== HERO ===== */
+#hero {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 6rem 0 3rem;
+  position: relative;
+  overflow: hidden;
+}
+#hero .wrap {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+/* Subtle ambient grid pattern (replaces 3D sphere) */
+#hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(200,240,96,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,240,96,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(0,0,0,0.6), transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(0,0,0,0.6), transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Hero grid: stacks on mobile, splits on desktop */
+.hero-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+.hero-content { order: 2; }
+.hero-portrait { order: 1; }
+
+@media (min-width: 900px) {
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .hero-content { order: 1; }
+  .hero-portrait { order: 2; }
+}
+
+/* Portrait column */
+.hero-portrait {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+}
+@media (min-width: 900px) {
+  .hero-portrait { align-items: stretch; }
+}
+
+/* Photo card */
+.hero-photo {
+  width: 160px;
+  height: 160px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 20px 40px -20px rgba(0,0,0,0.7);
+}
+.hero-photo::before {
+  /* inner accent frame on hover */
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(200,240,96,0);
+  border-radius: 12px;
+  pointer-events: none;
+  transition: border-color 0.3s;
+  z-index: 2;
+}
+.hero-photo:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow:
+    0 24px 50px -16px rgba(200,240,96,0.2),
+    0 8px 24px -12px rgba(0,0,0,0.85);
+}
+.hero-photo:hover::before { border-color: rgba(200,240,96,0.3); }
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (min-width: 600px) {
+  .hero-photo { width: 220px; height: 220px; }
+}
+@media (min-width: 900px) {
+  .hero-photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    max-width: 420px;
+    margin-left: auto;
+    border-radius: 24px;
+  }
+}
+
+/* Clean silhouette placeholder when no photo */
+.hero-photo.broken img { display: none; }
+.hero-photo.broken {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(200,240,96,0.05), transparent 65%),
+    var(--bg2);
+}
+.hero-photo.broken::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%234a4844' fill='none' stroke-width='1.2'%3E%3Ccircle cx='50' cy='38' r='13'/%3E%3Cpath d='M 22 90 Q 22 60 50 60 Q 78 60 78 90'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 55% 55%;
+  background-repeat: no-repeat;
+  background-position: center 48%;
+  opacity: 0.6;
+}
+
+/* Photo caption (career narrative) */
+.hero-photo-cap {
+  font-size: 0.7rem;
+  color: var(--fg3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-b);
+}
+.hero-photo-cap::before {
+  content: '';
+  width: 5px; height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 2.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.hero-photo-cap .arrow {
+  color: var(--accent);
+  margin: 0 0.3em;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@media (min-width: 900px) {
+  .hero-photo-cap {
+    align-self: flex-end;
+    max-width: 420px;
+    margin-left: auto;
+    width: 100%;
+  }
+}
+
+/* Hero text content */
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  align-items: center;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg2);
+  margin-bottom: 1.4rem;
+}
+.hero-meta::before {
+  content: '';
+  width: 24px; height: 1px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+}
+h1.name {
+  font-family: var(--font-d);
+  font-weight: 800;
+  font-size: clamp(2.6rem, 11vw, 7.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.1rem;
+  word-break: break-word;
+}
+h1.name .last {
+  display: block;
+  color: var(--accent);
+  font-style: italic;
+  font-family: var(--font-s);
+  font-weight: 400;
+}
+.hero-role {
+  font-family: var(--font-d);
+  font-weight: 500;
+  font-size: clamp(1rem, 3.5vw, 1.4rem);
+  color: var(--fg);
+  margin-bottom: 1.2rem;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.hero-tagline {
+  max-width: 580px;
+  font-size: 0.95rem;
+  color: var(--fg2);
+  margin-bottom: 2rem;
+  line-height: 1.65;
+}
+.hero-tagline strong { color: var(--fg); font-weight: 500; }
+.hero-tagline em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.hero-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.4rem;
+  font-family: var(--font-b);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg);
+  border: 1px solid var(--border2);
+  transition: all 0.2s;
+  cursor: pointer;
+  min-height: 48px;
+  text-align: center;
+}
+.btn:hover, .btn:focus {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+  font-weight: 500;
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: transparent;
+  color: var(--accent);
+}
+.btn::after { content: '→'; font-size: 0.95rem; }
+
+@media (min-width: 600px) {
+  .hero-cta { flex-direction: row; }
+  .btn { padding: 0.95rem 1.7rem; }
+}
+
+/* Stats — full-width band at bottom of hero */
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding-top: 2rem;
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+}
+.hero-stat .n {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 4.5vw, 2rem);
+  color: var(--accent);
+  line-height: 1;
+}
+.hero-stat .l {
+  font-size: 0.65rem;
+  color: var(--fg3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 900px) {
+  #hero { padding: 8rem 0 4rem; }
+  .hero-stats {
+    margin-top: 4rem;
+    gap: 2rem;
+  }
+}
+
+/* ===== SECTIONS ===== */
+section {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.sec-num {
+  font-family: var(--font-b);
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+.sec-head h2 {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 7vw, 3.2rem);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.sec-head h2 em {
+  font-family: var(--font-s);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--accent);
+}
+@media (min-width: 720px) {
+  .sec-head { gap: 1rem; margin-bottom: 3.5rem; padding-bottom: 1.5rem; }
+}
+
+/* ===== ABOUT ===== */
+.about-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+.about-prose p {
+  margin-bottom: 1.2rem;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--fg);
+}
+.about-prose p:first-child::first-letter {
+  font-family: var(--font-s);
+  font-size: 3rem;
+  line-height: 0.85;
+  float: left;
+  margin-right: 0.5rem;
+  margin-top: 0.15rem;
+  color: var(--accent);
+}
+.about-prose strong {
+  color: var(--accent);
+  font-weight: 400;
+}
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.fact {
+  padding: 1rem 1.1rem;
+  background: var(--bg2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.fact-key {
+  font-size: 0.7rem;
+  color: var(--fg2);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.fact-val {
+  font-family: var(--font-d);
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--fg);
+  text-align: right;
+}
+.fact-val .accent { color: var(--accent); }
+
+@media (min-width: 1024px) {
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+}
+
+/* ===== EXPERIENCE ===== */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+}
+.job {
+  padding: 2rem 0 2rem 1.5rem;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+.job:last-child { border-bottom: none; }
+.job::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 2.4rem;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.job-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.job-title {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  line-height: 1.2;
+}
+.job-co {
+  font-size: 0.85rem;
+  color: var(--fg2);
+  line-height: 1.5;
+}
+.job-co .dot { margin: 0 0.4rem; }
+.job-dates {
+  font-size: 0.7rem;
+  color: var(--fg3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.job-bullets {
+  list-style: none;
+  margin-top: 1rem;
+}
+.job-bullets li {
+  padding-left: 1.3rem;
+  position: relative;
+  margin-bottom: 0.7rem;
+  color: var(--fg);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+.job-bullets li::before {
+  content: '→';
+  position: absolute;
+  left: 0; top: 0;
+  color: var(--accent);
+}
+.job-stack {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.tag {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border2);
+  color: var(--fg2);
+  white-space: nowrap;
+}
+@media (min-width: 720px) {
+  .job { padding: 2.5rem 0 2.5rem 2.5rem; }
+  .job::before { top: 3rem; }
+  .job-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+}
+
+/* ===== PROJECTS ===== */
+.project-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.project-num {
+  font-family: var(--font-b);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--fg3);
+  margin-bottom: 1rem;
+}
+.project-num span { color: var(--accent); }
+.project-title {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 6.5vw, 2.4rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: 0.7rem;
+}
+.project-sub {
+  color: var(--fg2);
+  font-size: 0.85rem;
+  margin-bottom: 1.3rem;
+  line-height: 1.5;
+}
+.project-desc {
+  color: var(--fg);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  margin-bottom: 1.3rem;
+}
+.project-desc strong {
+  color: var(--accent);
+  font-weight: 400;
+}
+.project-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 1.3rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.metric {
+  padding: 0.8rem 0.7rem;
+  border-right: 1px solid var(--border);
+  min-width: 0;
+}
+.metric:last-child { border-right: none; }
+.metric .v {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: clamp(1rem, 4.5vw, 1.3rem);
+  color: var(--accent);
+  line-height: 1;
+}
+.metric .l {
+  font-size: 0.6rem;
+  color: var(--fg3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 0.4rem;
+}
+.project-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* SCREENSHOTS */
+.project-shots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.shot {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  aspect-ratio: 16 / 10;
+  transition: border-color 0.3s;
+}
+.shot:hover { border-color: var(--accent2); }
+.shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+.shot:hover img { transform: scale(1.03); }
+.shot-caption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 0.6rem 0.9rem;
+  background: linear-gradient(180deg, transparent, rgba(9,9,7,0.92));
+  font-size: 0.7rem;
+  color: var(--fg);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+.shot-caption .accent { color: var(--accent); }
+
+.shot.broken img { display: none; }
+.shot.broken {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--bg2),
+    var(--bg2) 10px,
+    var(--bg3) 10px,
+    var(--bg3) 20px
+  );
+}
+.shot.broken .ph-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.4;
+}
+.shot.broken .ph-title {
+  font-family: var(--font-d);
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.3rem;
+  line-height: 1.3;
+}
+.shot.broken .ph-path {
+  font-size: 0.65rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  word-break: break-all;
+}
+.shot.broken .ph-hint {
+  font-size: 0.6rem;
+  color: var(--fg3);
+  margin-top: 0.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.shot-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+.shot-row .shot { aspect-ratio: 1 / 1; }
+
+@media (min-width: 1024px) {
+  .project-card {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 3.5rem;
+    align-items: start;
+  }
+  .project-card:nth-child(even) {
+    grid-template-columns: 1.3fr 1fr;
+  }
+  .project-card:nth-child(even) .project-info { order: 2; }
+  .project-card:nth-child(even) .project-shots { order: 1; }
+  .project-info { position: sticky; top: 6rem; }
+  .project-grid { gap: 6rem; }
+}
+
+/* ===== SKILLS ===== */
+.skills-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 1px solid var(--border);
+}
+.skill-group {
+  padding: 1.4rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+}
+.skill-group:last-child { border-bottom: none; }
+.skill-group-title {
+  font-family: var(--font-d);
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.skill {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--border2);
+  color: var(--fg);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.skill:hover { border-color: var(--accent); color: var(--accent); }
+.skill.learn {
+  color: var(--fg3);
+  border-style: dashed;
+}
+
+@media (min-width: 720px) {
+  .skills-grid { grid-template-columns: 1fr 1fr; }
+  .skill-group { border-right: 1px solid var(--border); padding: 1.8rem; }
+  .skill-group:nth-child(2n) { border-right: none; }
+}
+
+/* ===== CONTACT ===== */
+#contact {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+}
+.contact-head {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 9vw, 4.5rem);
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  margin-bottom: 1.5rem;
+}
+.contact-head em {
+  font-family: var(--font-s);
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+.contact-prose {
+  max-width: 580px;
+  color: var(--fg2);
+  margin-bottom: 2.5rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.contact-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.contact-item {
+  padding: 1.1rem 1.3rem;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  transition: background 0.2s;
+  word-break: break-word;
+  min-height: 64px;
+  justify-content: center;
+}
+.contact-item:hover { background: var(--bg3); }
+.contact-key {
+  font-size: 0.65rem;
+  color: var(--fg3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.contact-val {
+  font-family: var(--font-d);
+  font-weight: 500;
+  font-size: 0.92rem;
+  color: var(--fg);
+}
+.contact-item:hover .contact-val { color: var(--accent); }
+
+@media (min-width: 600px) {
+  .contact-list { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1024px) {
+  .contact-list { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--fg3);
+}
+.foot a { color: var(--fg2); }
+.foot a:hover { color: var(--accent); }
+
+@media (min-width: 600px) {
+  .foot {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* ===== LIGHTBOX ===== */
+#lightbox {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(9,9,7,0.96);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  cursor: pointer;
+}
+#lightbox.open { display: flex; }
+#lightbox img {
+  max-width: 100%;
+  max-height: 85vh;
+  border: 1px solid var(--border2);
+}
+#lightbox-close {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  border: 1px solid var(--border2);
+  color: var(--fg);
+  padding: 0.6rem 0.9rem;
+  font-family: var(--font-b);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-height: 40px;
+}
+#lightbox-close:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ===== REVEAL ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s, transform 0.7s;
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* ===== PRINT ===== */
+@media print {
+  body::after, #cursor, #cursor-ring, #scroll-bar, header, #mob-nav, .hero-cta { display: none; }
+  body { background: white; color: black; }
+  section { padding: 1rem 0; page-break-inside: avoid; }
+  .shot { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="scroll-bar"></div>
+
+<header>
+  <a href="#hero" class="logo">NS<span>.</span></a>
+
+  <nav class="desk">
+    <a href="#about"><span class="num">01</span>About</a>
+    <a href="#experience"><span class="num">02</span>Experience</a>
+    <a href="#projects"><span class="num">03</span>Projects</a>
+    <a href="#skills"><span class="num">04</span>Stack</a>
+    <a href="#contact"><span class="num">05</span>Contact</a>
+  </nav>
+
+  <div class="head-actions">
+    <button class="lang-btn" id="lang-btn" aria-label="Toggle language">EN / RU</button>
+    <button id="mob-btn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<nav id="mob-nav" aria-hidden="true">
+  <a href="#about"><span class="num">01</span>About</a>
+  <a href="#experience"><span class="num">02</span>Experience</a>
+  <a href="#projects"><span class="num">03</span>Projects</a>
+  <a href="#skills"><span class="num">04</span>Stack</a>
+  <a href="#contact"><span class="num">05</span>Contact</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+
+      <div class="hero-content">
+        <div class="hero-meta">
+          <span data-en="Available · Junior DevOps roles" data-ru="Открыт к предложениям · Junior DevOps">Открыт к предложениям · Junior DevOps</span>
+          <span class="dot"></span>
+          <span>Moscow / Remote</span>
+        </div>
+        <h1 class="name">
+          Николай<span class="last" data-en="Skorikov" data-ru="Скориков">Скориков</span>
+        </h1>
+        <p class="hero-role" data-en="Junior DevOps Engineer · Infrastructure &amp; Automation" data-ru="Junior DevOps Engineer · Инфраструктура и автоматизация">Junior DevOps Engineer · Инфраструктура и автоматизация</p>
+        <p class="hero-tagline" data-en="<strong>~2 years</strong> of operational experience in infrastructure and automation. I operate a production Telegram bot serving <strong><em>3,300+ users</em></strong>; run a self-hosted homelab on Proxmox with 12+ months of uptime; was founding engineer of an e-commerce startup — Asterisk telephony for 40 operators, 50 product landings, load balancer in production." data-ru="<strong>~2 года</strong> операционного опыта в инфраструктуре и автоматизации. Поддерживаю production Telegram-бот для <strong><em>3 300+ пользователей</em></strong>; веду свой homelab на Proxmox с 12+ месяцев uptime; был founding-инженером e-commerce-стартапа — Asterisk на 40 операторов, 50 лендингов, балансировщик в проде.">~2 года операционного опыта в инфраструктуре и автоматизации. Поддерживаю production Telegram-бот для <strong><em>3 300+ пользователей</em></strong>; веду свой homelab на Proxmox с 12+ месяцев uptime; был founding-инженером e-commerce-стартапа — Asterisk на 40 операторов, 50 лендингов, балансировщик в проде.</p>
+        <div class="hero-cta">
+          <a href="#projects" class="btn btn-primary" data-en="View work" data-ru="Смотреть работы">Смотреть работы</a>
+          <a href="resume.pdf" class="btn" data-en="Download resume" data-ru="Скачать резюме">Скачать резюме</a>
+        </div>
+      </div>
+
+      <aside class="hero-portrait">
+        <div class="hero-photo" id="hero-photo">
+          <img src="photo.jpg" alt="Николай Скориков">
+        </div>
+        <div class="hero-photo-cap">
+          <span data-en="Founding eng" data-ru="Founding eng">Founding eng</span>
+          <span class="arrow">→</span>
+          <span data-en="Junior DevOps" data-ru="Junior DevOps">Junior DevOps</span>
+        </div>
+      </aside>
+
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="n">3,300+</div><div class="l" data-en="Bot MAU" data-ru="MAU бота">MAU бота</div></div>
+      <div class="hero-stat"><div class="n">~99%</div><div class="l">Homelab uptime</div></div>
+      <div class="hero-stat"><div class="n">~2 yr</div><div class="l" data-en="Operations" data-ru="Опыт операций">Опыт операций</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">01 /</span>
+      <h2 data-en="About <em>me</em>" data-ru="Обо <em>мне</em>">Обо <em>мне</em></h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-prose reveal">
+        <p data-en="I'm a 23-year-old infrastructure engineer based in Moscow, finishing my Bachelor's at MPGU in June 2026 (Information Systems &amp; Technology · Game Design specialization)." data-ru="Мне 23, я инфраструктурный инженер из Москвы, заканчиваю бакалавриат МПГУ в июне 2026 (Информационные системы и технологии, профиль «Гейм-дизайн и VR»).">Мне 23, я инфраструктурный инженер из Москвы, заканчиваю бакалавриат МПГУ в июне 2026 (Информационные системы и технологии, профиль «Гейм-дизайн и VR»).</p>
+        <p data-en="My core strength is <strong>operating live systems</strong>: deploying services, triaging incidents, gluing processes with n8n and bash, integrating LLMs into internal tooling. The last 2 years are real production: a Telegram bot 3,300 students rely on daily, a 40-agent call center I built from scratch with Asterisk, a Proxmox homelab I run as my private cloud." data-ru="Моя сильная сторона — <strong>операционная поддержка живых систем</strong>: разворачивать сервисы, разбирать инциденты, склеивать процессы через n8n и bash, интегрировать LLM-ки во внутренние инструменты. Последние 2 года — реальный продакшен: Telegram-бот, на который ежедневно полагаются 3 300 студентов; колл-центр на 40 операторов, поднятый с нуля на Asterisk; Proxmox-homelab, который я веду как своё приватное облако.">Моя сильная сторона — <strong>операционная поддержка живых систем</strong>: разворачивать сервисы, разбирать инциденты, склеивать процессы через n8n и bash, интегрировать LLM-ки во внутренние инструменты. Последние 2 года — реальный продакшен: Telegram-бот, на который ежедневно полагаются 3 300 студентов; колл-центр на 40 операторов, поднятый с нуля на Asterisk; Proxmox-homelab, который я веду как своё приватное облако.</p>
+        <p data-en="I'm honest about gaps: my Linux fundamentals are at working-knowledge level, I haven't run Kubernetes in production, my English is B1 — solid for reading docs, growing for real-time. I'm actively closing those gaps." data-ru="Честно про слабые места: Linux-фундаменты пока на среднем уровне, Kubernetes в продакшене не вёл, английский B1 — уверенно читаю документацию и общаюсь в чате, говорение тренирую. Активно закрываю эти пробелы.">Честно про слабые места: Linux-фундаменты пока на среднем уровне, Kubernetes в продакшене не вёл, английский B1 — уверенно читаю документацию и общаюсь в чате, говорение тренирую. Активно закрываю эти пробелы.</p>
+        <p data-en="Looking for a Junior DevOps / SRE / Infrastructure role with mentorship and a real production stack." data-ru="Ищу Junior DevOps / SRE / Infrastructure-роль в команде со зрелым менторством и боевым стеком.">Ищу Junior DevOps / SRE / Infrastructure-роль в команде со зрелым менторством и боевым стеком.</p>
+      </div>
+      <div class="facts reveal">
+        <div class="fact"><div class="fact-key" data-en="Location" data-ru="Локация">Локация</div><div class="fact-val">Moscow / Remote</div></div>
+        <div class="fact"><div class="fact-key" data-en="Format" data-ru="Формат">Формат</div><div class="fact-val" data-en="Hybrid · Office · Remote" data-ru="Гибрид · Офис · Удалёнка">Гибрид · Офис · Удалёнка</div></div>
+        <div class="fact"><div class="fact-key" data-en="Notice" data-ru="Готовность">Готовность</div><div class="fact-val" data-en="1–2 weeks" data-ru="1–2 недели">1–2 недели</div></div>
+        <div class="fact"><div class="fact-key" data-en="English" data-ru="Английский">Английский</div><div class="fact-val">B1 · Intermediate</div></div>
+        <div class="fact"><div class="fact-key" data-en="Education" data-ru="Образование">Образование</div><div class="fact-val">МПГУ · 2026</div></div>
+        <div class="fact"><div class="fact-key" data-en="Currently" data-ru="Сейчас">Сейчас</div><div class="fact-val"><span class="accent">●</span> МПГУ · part-time</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">02 /</span>
+      <h2 data-en="Experience <em>timeline</em>" data-ru="Опыт <em>работы</em>">Опыт <em>работы</em></h2>
+    </div>
+    <div class="timeline">
+
+      <article class="job reveal">
+        <div class="job-head">
+          <div>
+            <div class="job-title" data-en="Technician" data-ru="Техник">Техник</div>
+            <div class="job-co">МПГУ <span class="dot"></span> <span data-en="Center for Strategic Work with Applicants" data-ru="Центр стратегической работы с абитуриентами">Центр стратегической работы с абитуриентами</span></div>
+          </div>
+          <div class="job-dates" data-en="Jan 2025 — Now · Part-time" data-ru="Янв 2025 — сейчас · Неполная">Янв 2025 — сейчас · Неполная</div>
+        </div>
+        <ul class="job-bullets">
+          <li data-en="Operate the production Telegram bot @mpgu_imo_bot for 3,300+ students: deployment, on-call, monitoring, AI integrations (OpenRouter — Gemini, DeepSeek, GPT). Original code by a 2-person team; I own infrastructure, support, features and AI layer." data-ru="Поддерживаю production Telegram-бот @mpgu_imo_bot для 3 300+ студентов: deployment, on-call, мониторинг, AI-интеграции (OpenRouter — Gemini, DeepSeek, GPT). Код исходно разработан 2-person командой; я отвечаю за инфраструктуру, сопровождение, фичи и AI-слой.">Поддерживаю production Telegram-бот @mpgu_imo_bot для 3 300+ студентов: deployment, on-call, мониторинг, AI-интеграции (OpenRouter — Gemini, DeepSeek, GPT). Код исходно разработан 2-person командой; я отвечаю за инфраструктуру, сопровождение, фичи и AI-слой.</li>
+          <li data-en="Deploy and maintain institute infrastructure: Frappe/LMS, Jitsi, Nextcloud, monitoring (Grafana + Prometheus)." data-ru="Развёртываю и сопровождаю инфраструктуру института: Frappe/LMS, Jitsi-конференции, Nextcloud, мониторинг (Grafana + Prometheus).">Развёртываю и сопровождаю инфраструктуру института: Frappe/LMS, Jitsi-конференции, Nextcloud, мониторинг (Grafana + Prometheus).</li>
+          <li data-en="Mentor 10+ first-year CS students: technical assignments, code review, onboarding." data-ru="Менторство 10+ первокурсников-программистов: тех. задания, код-ревью, онбординг.">Менторство 10+ первокурсников-программистов: тех. задания, код-ревью, онбординг.</li>
+        </ul>
+        <div class="job-stack">
+          <span class="tag">Linux</span><span class="tag">Docker</span><span class="tag">Postgres</span><span class="tag">n8n</span><span class="tag">Grafana</span><span class="tag">OpenRouter</span>
+        </div>
+      </article>
+
+      <article class="job reveal">
+        <div class="job-head">
+          <div>
+            <div class="job-title" data-en="Founding Engineer" data-ru="Founding Engineer / Тех. сооснователь">Founding Engineer / Тех. сооснователь</div>
+            <div class="job-co" data-en="E-commerce startup · 3-person team" data-ru="E-commerce стартап · команда 3 чел.">E-commerce стартап · команда 3 чел.</div>
+          </div>
+          <div class="job-dates" data-en="Apr 2025 — Nov 2025" data-ru="Апр — Ноя 2025">Апр — Ноя 2025</div>
+        </div>
+        <ul class="job-bullets">
+          <li data-en="Single-handedly owned all technical operations: servers, telephony, CRM integrations, landings." data-ru="Единолично закрывал техническую сторону MVP: серверы, телефония, CRM-интеграции, лендинги.">Единолично закрывал техническую сторону MVP: серверы, телефония, CRM-интеграции, лендинги.</li>
+          <li data-en="Deployed Asterisk/FreePBX from scratch for a 40-agent call center: SIP trunk, IVR, recording, basic analytics." data-ru="Поднял Asterisk/FreePBX с нуля для колл-центра ~40 операторов: SIP-транк с провайдером, IVR, запись звонков, базовая аналитика.">Поднял Asterisk/FreePBX с нуля для колл-центра ~40 операторов: SIP-транк с провайдером, IVR, запись звонков, базовая аналитика.</li>
+          <li data-en="Built and shipped 50 product landing pages with lead-routing into LeadVertex CRM." data-ru="Создал и запустил 50 продуктовых лендингов с интеграцией заявок в LeadVertex CRM.">Создал и запустил 50 продуктовых лендингов с интеграцией заявок в LeadVertex CRM.</li>
+          <li data-en="Configured a load balancer (2 backend nodes) for the main e-commerce frontend." data-ru="Настроил балансировщик нагрузки (2 backend-ноды) для основного интернет-магазина.">Настроил балансировщик нагрузки (2 backend-ноды) для основного интернет-магазина.</li>
+          <li data-en="Inbound-call Whisper transcription → automated classification routed back into CRM." data-ru="Whisper-транскрипция входящих звонков → автоматическая классификация обращений в CRM.">Whisper-транскрипция входящих звонков → автоматическая классификация обращений в CRM.</li>
+        </ul>
+        <div class="job-stack">
+          <span class="tag">Linux</span><span class="tag">Nginx</span><span class="tag">Docker</span><span class="tag">Asterisk</span><span class="tag">FreePBX</span><span class="tag">LeadVertex</span><span class="tag">Whisper</span>
+        </div>
+      </article>
+
+      <article class="job reveal">
+        <div class="job-head">
+          <div>
+            <div class="job-title" data-en="Documentation Specialist" data-ru="Документовед">Документовед</div>
+            <div class="job-co">МПГУ <span class="dot"></span> <span data-en="Distance Learning Development" data-ru="Центр развития дистанционного образования">Центр развития дистанционного образования</span></div>
+          </div>
+          <div class="job-dates" data-en="Apr — Oct 2024" data-ru="Апр — Окт 2024">Апр — Окт 2024</div>
+        </div>
+        <ul class="job-bullets">
+          <li data-en="Deployed and maintained Enlight Russia online school on Frappe/LMS: Docker, PostgreSQL, Nginx, backups." data-ru="Развернул и сопровождал онлайн-школу Enlight Russia на Frappe/LMS: Docker, PostgreSQL, Nginx, бэкапы.">Развернул и сопровождал онлайн-школу Enlight Russia на Frappe/LMS: Docker, PostgreSQL, Nginx, бэкапы.</li>
+          <li data-en="Tech support: incident triage, updates, basic monitoring." data-ru="Tech-поддержка: разбор инцидентов, обновления, базовый мониторинг.">Tech-поддержка: разбор инцидентов, обновления, базовый мониторинг.</li>
+          <li data-en="Side: course-page design and frontend, landing templates." data-ru="Дополнительно: дизайн и фронтенд страниц курсов, шаблоны лендингов.">Дополнительно: дизайн и фронтенд страниц курсов, шаблоны лендингов.</li>
+        </ul>
+        <div class="job-stack">
+          <span class="tag">Frappe/LMS</span><span class="tag">Docker</span><span class="tag">Postgres</span><span class="tag">Nginx</span><span class="tag">Figma</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">03 /</span>
+      <h2 data-en="Selected <em>work</em>" data-ru="Избранные <em>работы</em>">Избранные <em>работы</em></h2>
+    </div>
+
+    <div class="project-grid">
+
+      <article class="project-card reveal">
+        <div class="project-info">
+          <div class="project-num">PROJECT <span>/ 01</span></div>
+          <h3 class="project-title">MPGU AI Bot</h3>
+          <div class="project-sub" data-en="Production Telegram bot · 3,300+ MAU · 1.5+ years in operation" data-ru="Production Telegram-бот · 3 300+ MAU · 1,5+ года в эксплуатации">Production Telegram-бот · 3 300+ MAU · 1,5+ года в эксплуатации</div>
+          <p class="project-desc" data-en="University-wide schedule, change notifications and AI-assisted Q&amp;A bot. Original development by a 2-person team; <strong>I own all infrastructure</strong>, deployment, on-call, AI integrations and feature additions since 2024." data-ru="Бот для расписания, уведомлений об изменениях и AI-ответов на бытовые вопросы для всего института. Разработан 2-person командой; <strong>я отвечаю за всю инфраструктуру</strong>, deployment, on-call, AI-интеграции и фичи с 2024.">Бот для расписания, уведомлений об изменениях и AI-ответов на бытовые вопросы для всего института. Разработан 2-person командой; <strong>я отвечаю за всю инфраструктуру</strong>, deployment, on-call, AI-интеграции и фичи с 2024.</p>
+          <div class="project-metrics">
+            <div class="metric"><div class="v">3,300+</div><div class="l">MAU</div></div>
+            <div class="metric"><div class="v">1.5+ y</div><div class="l" data-en="In production" data-ru="В проде">В проде</div></div>
+            <div class="metric"><div class="v">~99%</div><div class="l">Uptime</div></div>
+          </div>
+          <div class="project-stack">
+            <span class="tag">Python</span><span class="tag">Postgres</span><span class="tag">Docker</span><span class="tag">n8n</span><span class="tag">OpenRouter</span><span class="tag">Caddy</span>
+          </div>
+        </div>
+        <div class="project-shots">
+          <a class="shot" data-shot="screenshots/bot-telegram.png" data-caption="Bot UI · Telegram chat with /start menu">
+            <img src="screenshots/bot-telegram.png" alt="Bot UI · Telegram">
+            <div class="shot-caption"><span class="accent">01</span> · Bot interface in Telegram</div>
+          </a>
+          <a class="shot" data-shot="screenshots/bot-grafana.png" data-caption="Grafana monitoring · DAU / errors / response time">
+            <img src="screenshots/bot-grafana.png" alt="Grafana monitoring">
+            <div class="shot-caption"><span class="accent">02</span> · Grafana monitoring</div>
+          </a>
+        </div>
+      </article>
+
+      <article class="project-card reveal">
+        <div class="project-info">
+          <div class="project-num">PROJECT <span>/ 02</span></div>
+          <h3 class="project-title" data-en="Self-Hosted Homelab" data-ru="Self-hosted Homelab">Self-hosted Homelab</h3>
+          <div class="project-sub" data-en="Proxmox VE single-node mini-PC · personal cloud" data-ru="Proxmox VE на single-node mini-PC · своё приватное облако">Proxmox VE на single-node mini-PC · своё приватное облако</div>
+          <p class="project-desc" data-en="6 LXC containers + 1 QEMU VM running on a single Proxmox node — Postgres, Gitea, n8n, NPMplus reverse proxy, custom homepage, Docker host, Frappe LMS. <strong>Automated backups, Telegram alerting, ~99% uptime tracked over 12+ months.</strong>" data-ru="6 LXC-контейнеров + 1 QEMU VM на single-node Proxmox — Postgres, Gitea, n8n, NPMplus reverse proxy, custom homepage, generic Docker host, Frappe LMS. <strong>Автобэкапы, Telegram-алертинг, ~99% uptime за 12+ месяцев.</strong>">6 LXC-контейнеров + 1 QEMU VM на single-node Proxmox — Postgres, Gitea, n8n, NPMplus reverse proxy, custom homepage, generic Docker host, Frappe LMS. <strong>Автобэкапы, Telegram-алертинг, ~99% uptime за 12+ месяцев.</strong></p>
+          <div class="project-metrics">
+            <div class="metric"><div class="v">6 LXC</div><div class="l">Containers</div></div>
+            <div class="metric"><div class="v">12+ mo</div><div class="l">Uptime</div></div>
+            <div class="metric"><div class="v">~99%</div><div class="l">Avail.</div></div>
+          </div>
+          <div class="project-stack">
+            <span class="tag">Proxmox VE</span><span class="tag">LXC</span><span class="tag">Docker</span><span class="tag">Caddy</span><span class="tag">NPMplus</span><span class="tag">Postgres</span><span class="tag">Gitea</span><span class="tag">n8n</span>
+          </div>
+        </div>
+        <div class="project-shots">
+          <a class="shot" data-shot="screenshots/proxmox-dashboard.png" data-caption="Proxmox VE 9.x dashboard · 6 LXC + 1 QEMU VM, 34+ days uptime">
+            <img src="screenshots/proxmox-dashboard.png" alt="Proxmox dashboard">
+            <div class="shot-caption"><span class="accent">01</span> · Proxmox dashboard</div>
+          </a>
+          <a class="shot" data-shot="screenshots/homelab-architecture.png" data-caption="Homelab architecture · LXC layout, networking, public exposure via NPMplus">
+            <img src="screenshots/homelab-architecture.png" alt="Architecture diagram">
+            <div class="shot-caption"><span class="accent">02</span> · Architecture diagram</div>
+          </a>
+        </div>
+      </article>
+
+      <article class="project-card reveal">
+        <div class="project-info">
+          <div class="project-num">PROJECT <span>/ 03</span></div>
+          <h3 class="project-title" data-en="E-commerce Infrastructure" data-ru="E-commerce инфраструктура">E-commerce инфраструктура</h3>
+          <div class="project-sub" data-en="Founding tech engineer · Apr–Nov 2025 · 3 founders" data-ru="Founding tech engineer · Апр–Ноя 2025 · 3 фаундера">Founding tech engineer · Апр–Ноя 2025 · 3 фаундера</div>
+          <p class="project-desc" data-en="Single-handedly built and operated the entire technical stack: <strong>Asterisk telephony for 40 call-center operators</strong>, 50 product landing pages, LeadVertex CRM with automated lead funnel, load balancer with 2 backend nodes, Whisper-based call analytics. The infrastructure is still operational." data-ru="Единолично поднял и поддерживал всю техническую сторону: <strong>Asterisk-телефония для 40 операторов</strong>, 50 продуктовых лендингов, LeadVertex CRM с автоворонкой, балансировщик с 2 backend-нодами, Whisper-аналитика звонков. Инфраструктура работает до сих пор.">Единолично поднял и поддерживал всю техническую сторону: <strong>Asterisk-телефония для 40 операторов</strong>, 50 продуктовых лендингов, LeadVertex CRM с автоворонкой, балансировщик с 2 backend-нодами, Whisper-аналитика звонков. Инфраструктура работает до сих пор.</p>
+          <div class="project-metrics">
+            <div class="metric"><div class="v">40</div><div class="l" data-en="Agents" data-ru="Опер.">Опер.</div></div>
+            <div class="metric"><div class="v">50</div><div class="l" data-en="Landings" data-ru="Лендингов">Лендингов</div></div>
+            <div class="metric"><div class="v">2</div><div class="l" data-en="LB nodes" data-ru="LB-ноды">LB-ноды</div></div>
+          </div>
+          <div class="project-stack">
+            <span class="tag">Asterisk</span><span class="tag">FreePBX</span><span class="tag">SIP</span><span class="tag">LeadVertex</span><span class="tag">Linux</span><span class="tag">Nginx</span><span class="tag">Whisper</span>
+          </div>
+        </div>
+        <div class="project-shots">
+          <div class="shot-row">
+            <a class="shot" data-shot="screenshots/asterisk-cdr.png" data-caption="FreePBX CDR · call detail records dashboard">
+              <img src="screenshots/asterisk-cdr.png" alt="Asterisk CDR">
+              <div class="shot-caption"><span class="accent">01</span> · Asterisk</div>
+            </a>
+            <a class="shot" data-shot="screenshots/crm-leadvertex.png" data-caption="LeadVertex CRM · order funnel and lead routing">
+              <img src="screenshots/crm-leadvertex.png" alt="LeadVertex CRM">
+              <div class="shot-caption"><span class="accent">02</span> · CRM</div>
+            </a>
+          </div>
+          <a class="shot" data-shot="screenshots/landing-product.png" data-caption="One of the 50 product landing pages with lead-routing into CRM">
+            <img src="screenshots/landing-product.png" alt="Product landing page">
+            <div class="shot-caption"><span class="accent">03</span> · Product landing</div>
+          </a>
+        </div>
+      </article>
+
+      <article class="project-card reveal">
+        <div class="project-info">
+          <div class="project-num">PROJECT <span>/ 04</span></div>
+          <h3 class="project-title" data-en="n8n Automations" data-ru="n8n автоматизации">n8n автоматизации</h3>
+          <div class="project-sub" data-en="AI-driven workflows in production" data-ru="Production AI-workflow на self-hosted n8n">Production AI-workflow на self-hosted n8n</div>
+          <p class="project-desc" data-en="Self-hosted n8n with multiple production flows: <strong>МАКС → Telegram university announcements mirror</strong> with LLM routing per course; AI-generated social posts; AI-generated product photos via KIE.ai. All run on my Proxmox node, monitored, with Telegram alerting on failure." data-ru="Self-hosted n8n с несколькими production-флоу: <strong>зеркало университетских объявлений МАКС → Telegram</strong> с AI-маршрутизацией по курсам; AI-генерация постов для соцсетей; AI-фотогенерация карточек товаров через KIE.ai. Всё на Proxmox-ноде, с мониторингом и алертами в Telegram.">Self-hosted n8n с несколькими production-флоу: <strong>зеркало университетских объявлений МАКС → Telegram</strong> с AI-маршрутизацией по курсам; AI-генерация постов для соцсетей; AI-фотогенерация карточек товаров через KIE.ai. Всё на Proxmox-ноде, с мониторингом и алертами в Telegram.</p>
+          <div class="project-stack">
+            <span class="tag">n8n</span><span class="tag">OpenRouter</span><span class="tag">Gemini</span><span class="tag">Telegram API</span><span class="tag">KIE.ai</span><span class="tag">Postgres</span>
+          </div>
+        </div>
+        <div class="project-shots">
+          <a class="shot" data-shot="screenshots/n8n-workflow.png" data-caption="n8n workflow canvas · МАКС → Telegram mirror with LLM routing">
+            <img src="screenshots/n8n-workflow.png" alt="n8n workflow">
+            <div class="shot-caption"><span class="accent">01</span> · n8n workflow canvas</div>
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">04 /</span>
+      <h2 data-en="Stack &amp; <em>tools</em>" data-ru="Стек и <em>инструменты</em>">Стек и <em>инструменты</em></h2>
+    </div>
+    <div class="skills-grid reveal">
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="Infrastructure" data-ru="Инфраструктура">Инфраструктура</div>
+        <div class="skill-list">
+          <span class="skill">Linux</span><span class="skill">Ubuntu</span><span class="skill">Debian</span>
+          <span class="skill">Proxmox VE</span><span class="skill">LXC</span><span class="skill">Docker</span>
+          <span class="skill">Compose</span><span class="skill">Nginx</span><span class="skill">Caddy</span>
+          <span class="skill">NPMplus</span><span class="skill">Traefik</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="CI/CD &amp; Git" data-ru="CI/CD и Git">CI/CD и Git</div>
+        <div class="skill-list">
+          <span class="skill">Git</span><span class="skill">Gitea</span>
+          <span class="skill">GitHub Actions</span><span class="skill">GitLab CI</span>
+          <span class="skill">Bash</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="Monitoring" data-ru="Мониторинг">Мониторинг</div>
+        <div class="skill-list">
+          <span class="skill">Grafana</span><span class="skill">Prometheus</span>
+          <span class="skill">journalctl</span><span class="skill">Telegram alerts</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="Networking &amp; Security" data-ru="Сети и безопасность">Сети и безопасность</div>
+        <div class="skill-list">
+          <span class="skill">SSL/TLS</span><span class="skill">Let's Encrypt</span>
+          <span class="skill">DNS</span><span class="skill">Cloudflare</span>
+          <span class="skill">IPv6</span><span class="skill">Xray-core</span>
+          <span class="skill">SIP</span><span class="skill">ufw</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="Databases" data-ru="Базы данных">Базы данных</div>
+        <div class="skill-list">
+          <span class="skill">PostgreSQL</span><span class="skill">MariaDB</span>
+          <span class="skill">Redis</span><span class="skill">Directus</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="Cloud Providers" data-ru="Облака">Облака</div>
+        <div class="skill-list">
+          <span class="skill">Hostinger</span><span class="skill">DigitalOcean</span>
+          <span class="skill">Timeweb</span><span class="skill">Yandex Cloud</span>
+          <span class="skill">Selectel</span><span class="skill">Azure</span>
+          <span class="skill">AWS</span><span class="skill">GCP</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="VoIP" data-ru="VoIP / Телефония">VoIP / Телефония</div>
+        <div class="skill-list">
+          <span class="skill">Asterisk</span><span class="skill">FreePBX</span>
+          <span class="skill">SIP trunks</span><span class="skill">IVR</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="AI / LLM" data-ru="AI / LLM">AI / LLM</div>
+        <div class="skill-list">
+          <span class="skill">OpenRouter</span><span class="skill">Gemini</span>
+          <span class="skill">DeepSeek</span><span class="skill">Claude Code</span>
+          <span class="skill">Whisper</span><span class="skill">n8n agents</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="Currently learning" data-ru="В процессе изучения">В процессе изучения</div>
+        <div class="skill-list">
+          <span class="skill learn">Kubernetes</span><span class="skill learn">kind / k3s</span>
+          <span class="skill learn">Ansible</span><span class="skill learn">Terraform</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title" data-en="Design &amp; Soft" data-ru="Дизайн и софт">Дизайн и софт</div>
+        <div class="skill-list">
+          <span class="skill">Figma</span><span class="skill">Photoshop</span>
+          <span class="skill">Premiere</span><span class="skill" data-en="Mentoring" data-ru="Менторство">Менторство</span>
+          <span class="skill" data-en="Team lead" data-ru="Тим-лид">Тим-лид</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">05 /</span>
+      <h2 data-en="Get in <em>touch</em>" data-ru="Напишите <em>мне</em>">Напишите <em>мне</em></h2>
+    </div>
+    <div class="reveal">
+      <div class="contact-head" data-en="Open to <em>junior DevOps</em> roles." data-ru="Открыт к <em>junior DevOps</em> ролям.">Открыт к <em>junior DevOps</em> ролям.</div>
+      <p class="contact-prose" data-en="Looking for a Junior DevOps / Infrastructure / SRE role in Moscow with hybrid or full-office, growing in a team with mature mentorship. Available within 1-2 weeks." data-ru="Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством. Готов выйти в течение 1–2 недель.">Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством. Готов выйти в течение 1–2 недель.</p>
+      <div class="contact-list">
+        <a href="mailto:nikolai-skorikov@outlook.com" class="contact-item">
+          <span class="contact-key">Email</span>
+          <span class="contact-val">nikolai-skorikov@outlook.com</span>
+        </a>
+        <a href="https://t.me/joylessorchid" target="_blank" rel="noopener" class="contact-item">
+          <span class="contact-key">Telegram</span>
+          <span class="contact-val">@joylessorchid</span>
+        </a>
+        <a href="https://linkedin.com/in/nikolay-skorikov-023267400" target="_blank" rel="noopener" class="contact-item">
+          <span class="contact-key">LinkedIn</span>
+          <span class="contact-val">/in/nikolay-skorikov</span>
+        </a>
+        <a href="https://github.com/joylessorchid" target="_blank" rel="noopener" class="contact-item">
+          <span class="contact-key">GitHub</span>
+          <span class="contact-val">/joylessorchid</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <span>© 2026 Николай Скориков</span>
+      <span data-en="Built by hand · No frameworks" data-ru="Сделано вручную · Без фреймворков">Сделано вручную · Без фреймворков</span>
+    </div>
+  </div>
+</footer>
+
+<div id="lightbox" role="dialog" aria-modal="true">
+  <button id="lightbox-close" data-en="Close ✕" data-ru="Закрыть ✕">Закрыть ✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+// ===== Photo fallback =====
+(function () {
+  const wrap = document.getElementById('hero-photo');
+  if (!wrap) return;
+  const img = wrap.querySelector('img');
+  function fail() { wrap.classList.add('broken'); }
+  if (img.complete && img.naturalWidth === 0) fail();
+  img.addEventListener('error', fail);
+})();
+
+// Custom cursor — desktop only
+(function () {
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  const cur = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let rx = 0, ry = 0, x = 0, y = 0;
+  document.addEventListener('mousemove', e => { x = e.clientX; y = e.clientY; });
+  function loop() {
+    rx += (x - rx) * 0.18;
+    ry += (y - ry) * 0.18;
+    cur.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+  document.querySelectorAll('a, button, .shot, .project-card').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('hover'));
+  });
+})();
+
+// Scroll progress bar
+const bar = document.getElementById('scroll-bar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const sc = (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100;
+  bar.style.width = sc + '%';
+}, { passive: true });
+
+// Reveal on scroll
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Mobile menu
+const mb = document.getElementById('mob-btn');
+const mn = document.getElementById('mob-nav');
+mb.addEventListener('click', () => {
+  const open = mn.classList.toggle('open');
+  mb.classList.toggle('open', open);
+  mb.setAttribute('aria-expanded', open ? 'true' : 'false');
+  mn.setAttribute('aria-hidden', open ? 'false' : 'true');
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+mn.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  mn.classList.remove('open');
+  mb.classList.remove('open');
+  mb.setAttribute('aria-expanded', 'false');
+  mn.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}));
+
+// Language toggle
+const langBtn = document.getElementById('lang-btn');
+let lang = 'ru';
+function setLang(l) {
+  lang = l;
+  document.documentElement.lang = l;
+  document.querySelectorAll('[data-en][data-ru]').forEach(el => {
+    el.innerHTML = el.getAttribute('data-' + l);
+  });
+  langBtn.textContent = l === 'ru' ? 'RU / EN' : 'EN / RU';
+}
+langBtn.addEventListener('click', () => setLang(lang === 'ru' ? 'en' : 'ru'));
+
+// Image fallback (placeholder for missing screenshots)
+document.querySelectorAll('.shot').forEach(shot => {
+  const img = shot.querySelector('img');
+  if (!img) return;
+  const src = shot.getAttribute('data-shot') || img.src;
+  const caption = shot.getAttribute('data-caption') || 'Screenshot';
+  function showPlaceholder() {
+    if (shot.classList.contains('broken')) return;
+    shot.classList.add('broken');
+    const path = src.split('/').pop();
+    shot.innerHTML = `
+      <div class="ph-icon">⊞</div>
+      <div class="ph-title">${caption}</div>
+      <div class="ph-path">screenshots/${path}</div>
+      <div class="ph-hint">${lang === 'ru' ? 'Добавьте файл' : 'Drop file here'}</div>
+    `;
+  }
+  img.addEventListener('error', showPlaceholder);
+  if (img.complete && img.naturalWidth === 0) showPlaceholder();
+});
+
+// Lightbox
+const lb = document.getElementById('lightbox');
+const lbImg = document.getElementById('lightbox-img');
+const lbClose = document.getElementById('lightbox-close');
+document.querySelectorAll('.shot').forEach(shot => {
+  shot.addEventListener('click', e => {
+    if (shot.classList.contains('broken')) return;
+    e.preventDefault();
+    const src = shot.getAttribute('data-shot');
+    lbImg.src = src;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+});
+function closeLb() {
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+lb.addEventListener('click', closeLb);
+lbClose.addEventListener('click', e => { e.stopPropagation(); closeLb(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+</script>
+</body>
+</html>
