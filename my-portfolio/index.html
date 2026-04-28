@@ -839,17 +839,42 @@ section {
   overflow: hidden;
   background: var(--bg2);
   border: 1px solid var(--border);
-  aspect-ratio: 16 / 10;
   transition: border-color 0.3s;
+  /* let the image dictate height; cap to prevent giant verticals */
+  max-height: 540px;
 }
 .shot:hover { border-color: var(--accent2); }
 .shot img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  max-height: 540px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
   transition: transform 0.4s;
+  background: var(--bg2);
 }
-.shot:hover img { transform: scale(1.03); }
+.shot:hover img { transform: scale(1.015); }
+
+/* placeholder still needs a defined size since there's no image */
+.shot.broken {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  aspect-ratio: 16 / 10;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--bg2),
+    var(--bg2) 10px,
+    var(--bg3) 10px,
+    var(--bg3) 20px
+  );
+}
+.shot.broken img { display: none; }
+
 .shot-caption {
   position: absolute;
   bottom: 0; left: 0; right: 0;
@@ -862,22 +887,6 @@ section {
 }
 .shot-caption .accent { color: var(--accent); }
 
-.shot.broken img { display: none; }
-.shot.broken {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  text-align: center;
-  padding: 1.5rem 1rem;
-  background: repeating-linear-gradient(
-    45deg,
-    var(--bg2),
-    var(--bg2) 10px,
-    var(--bg3) 10px,
-    var(--bg3) 20px
-  );
-}
 .shot.broken .ph-icon {
   font-size: 1.8rem;
   margin-bottom: 0.5rem;
@@ -911,7 +920,15 @@ section {
   grid-template-columns: 1fr 1fr;
   gap: 0.8rem;
 }
-.shot-row .shot { aspect-ratio: 1 / 1; }
+.shot-row .shot {
+  max-height: 320px;
+}
+.shot-row .shot img {
+  max-height: 320px;
+}
+.shot-row .shot.broken {
+  aspect-ratio: 1 / 1;
+}
 
 @media (min-width: 1024px) {
   .project-card {
@@ -1304,8 +1321,8 @@ footer {
         <div class="project-info">
           <div class="project-num">PROJECT <span>/ 01</span></div>
           <h3 class="project-title">MPGU AI Bot</h3>
-          <div class="project-sub" data-en="Production Telegram bot · 3,300+ MAU · 1.5+ years in operation" data-ru="Production Telegram-бот · 3 300+ MAU · 1,5+ года в эксплуатации">Production Telegram-бот · 3 300+ MAU · 1,5+ года в эксплуатации</div>
-          <p class="project-desc" data-en="University-wide schedule, change notifications and AI-assisted Q&amp;A bot. Original development by a 2-person team; <strong>I own all infrastructure</strong>, deployment, on-call, AI integrations and feature additions since 2024." data-ru="Бот для расписания, уведомлений об изменениях и AI-ответов на бытовые вопросы для всего института. Разработан 2-person командой; <strong>я отвечаю за всю инфраструктуру</strong>, deployment, on-call, AI-интеграции и фичи с 2024.">Бот для расписания, уведомлений об изменениях и AI-ответов на бытовые вопросы для всего института. Разработан 2-person командой; <strong>я отвечаю за всю инфраструктуру</strong>, deployment, on-call, AI-интеграции и фичи с 2024.</p>
+          <div class="project-sub" data-en="Production LLM service with real traffic · 3,300+ MAU · 1.5+ years live" data-ru="Production LLM-сервис с реальной нагрузкой · 3 300+ MAU · 1,5+ года в проде">Production LLM-сервис с реальной нагрузкой · 3 300+ MAU · 1,5+ года в проде</div>
+          <p class="project-desc" data-en="Operating a live LLM-powered assistant in production: deployment, on-call, monitoring, observability, AI integrations, cost control. <strong>I own all infrastructure and the AI layer</strong> on top of a codebase originally written by a 2-person team. End-users — 3,300 university students relying on it daily for schedule, notifications and Q&amp;A." data-ru="Эксплуатация production LLM-ассистента с реальной нагрузкой: deployment, on-call, мониторинг, observability, AI-интеграции, контроль расходов. <strong>Отвечаю за всю инфраструктуру и AI-слой</strong> на коде, изначально написанном 2-person командой. Конечные пользователи — 3 300 студентов вуза, которые ежедневно полагаются на бот для расписания, уведомлений и Q&amp;A.">Эксплуатация production LLM-ассистента с реальной нагрузкой: deployment, on-call, мониторинг, observability, AI-интеграции, контроль расходов. <strong>Отвечаю за всю инфраструктуру и AI-слой</strong> на коде, изначально написанном 2-person командой. Конечные пользователи — 3 300 студентов вуза, которые ежедневно полагаются на бот для расписания, уведомлений и Q&amp;A.</p>
           <div class="project-metrics">
             <div class="metric"><div class="v">3,300+</div><div class="l">MAU</div></div>
             <div class="metric"><div class="v">1.5+ y</div><div class="l" data-en="In production" data-ru="В проде">В проде</div></div>
@@ -1331,8 +1348,8 @@ footer {
         <div class="project-info">
           <div class="project-num">PROJECT <span>/ 02</span></div>
           <h3 class="project-title" data-en="Self-Hosted Homelab" data-ru="Self-hosted Homelab">Self-hosted Homelab</h3>
-          <div class="project-sub" data-en="Proxmox VE single-node mini-PC · personal cloud" data-ru="Proxmox VE на single-node mini-PC · своё приватное облако">Proxmox VE на single-node mini-PC · своё приватное облако</div>
-          <p class="project-desc" data-en="6 LXC containers + 1 QEMU VM running on a single Proxmox node — Postgres, Gitea, n8n, NPMplus reverse proxy, custom homepage, Docker host, Frappe LMS. <strong>Automated backups, Telegram alerting, ~99% uptime tracked over 12+ months.</strong>" data-ru="6 LXC-контейнеров + 1 QEMU VM на single-node Proxmox — Postgres, Gitea, n8n, NPMplus reverse proxy, custom homepage, generic Docker host, Frappe LMS. <strong>Автобэкапы, Telegram-алертинг, ~99% uptime за 12+ месяцев.</strong>">6 LXC-контейнеров + 1 QEMU VM на single-node Proxmox — Postgres, Gitea, n8n, NPMplus reverse proxy, custom homepage, generic Docker host, Frappe LMS. <strong>Автобэкапы, Telegram-алертинг, ~99% uptime за 12+ месяцев.</strong></p>
+          <div class="project-sub" data-en="Personal cloud platform · 12+ months in production" data-ru="Личная cloud-платформа · 12+ месяцев в эксплуатации">Личная cloud-платформа · 12+ месяцев в эксплуатации</div>
+          <p class="project-desc" data-en="A private cloud where I run, monitor and back up my own services. Single Proxmox node hosts <strong>6 LXC containers + 1 QEMU VM</strong> behind a single reverse proxy — git, workflows, databases, Docker workloads, an LMS — with automated backups, ZFS snapshots, Telegram alerting and ~99% uptime tracked over 12+ months." data-ru="Приватное облако, на котором я разворачиваю, мониторю и бэкаплю собственные сервисы. Single-node Proxmox хостит <strong>6 LXC-контейнеров + 1 QEMU VM</strong> за единым reverse proxy — git, workflow-движок, БД, Docker-нагрузки, LMS — с автобэкапами, ZFS-снапшотами, Telegram-алертингом и ~99% uptime за 12+ месяцев.">Приватное облако, на котором я разворачиваю, мониторю и бэкаплю собственные сервисы. Single-node Proxmox хостит <strong>6 LXC-контейнеров + 1 QEMU VM</strong> за единым reverse proxy — git, workflow-движок, БД, Docker-нагрузки, LMS — с автобэкапами, ZFS-снапшотами, Telegram-алертингом и ~99% uptime за 12+ месяцев.</p>
           <div class="project-metrics">
             <div class="metric"><div class="v">6 LXC</div><div class="l">Containers</div></div>
             <div class="metric"><div class="v">12+ mo</div><div class="l">Uptime</div></div>
@@ -1358,8 +1375,8 @@ footer {
         <div class="project-info">
           <div class="project-num">PROJECT <span>/ 03</span></div>
           <h3 class="project-title" data-en="E-commerce Infrastructure" data-ru="E-commerce инфраструктура">E-commerce инфраструктура</h3>
-          <div class="project-sub" data-en="Founding tech engineer · Apr–Nov 2025 · 3 founders" data-ru="Founding tech engineer · Апр–Ноя 2025 · 3 фаундера">Founding tech engineer · Апр–Ноя 2025 · 3 фаундера</div>
-          <p class="project-desc" data-en="Single-handedly built and operated the entire technical stack: <strong>Asterisk telephony for 40 call-center operators</strong>, 50 product landing pages, LeadVertex CRM with automated lead funnel, load balancer with 2 backend nodes, Whisper-based call analytics. The infrastructure is still operational." data-ru="Единолично поднял и поддерживал всю техническую сторону: <strong>Asterisk-телефония для 40 операторов</strong>, 50 продуктовых лендингов, LeadVertex CRM с автоворонкой, балансировщик с 2 backend-нодами, Whisper-аналитика звонков. Инфраструктура работает до сих пор.">Единолично поднял и поддерживал всю техническую сторону: <strong>Asterisk-телефония для 40 операторов</strong>, 50 продуктовых лендингов, LeadVertex CRM с автоворонкой, балансировщик с 2 backend-нодами, Whisper-аналитика звонков. Инфраструктура работает до сих пор.</p>
+          <div class="project-sub" data-en="Founding engineer · end-to-end technical ownership · Apr–Nov 2025" data-ru="Founding engineer · end-to-end ответственность за технику · Апр–Ноя 2025">Founding engineer · end-to-end ответственность за технику · Апр–Ноя 2025</div>
+          <p class="project-desc" data-en="Built and operated the entire technical stack of an early-stage e-commerce business as the only engineer: <strong>VoIP for a 40-agent call center</strong>, a fleet of product landings with lead funnel into CRM, load-balanced backend, and call analytics. Owned everything from server provisioning to deployment and incident response. Infrastructure remains operational." data-ru="Поднял и операционно вёл весь технический стек раннего e-commerce-бизнеса как единственный инженер: <strong>VoIP для колл-центра на 40 операторов</strong>, фабрика продуктовых лендингов с воронкой заявок в CRM, балансируемый бэкенд, аналитика звонков. Полная ответственность от провижининга серверов до деплоя и разбора инцидентов. Инфраструктура работает до сих пор.">Поднял и операционно вёл весь технический стек раннего e-commerce-бизнеса как единственный инженер: <strong>VoIP для колл-центра на 40 операторов</strong>, фабрика продуктовых лендингов с воронкой заявок в CRM, балансируемый бэкенд, аналитика звонков. Полная ответственность от провижининга серверов до деплоя и разбора инцидентов. Инфраструктура работает до сих пор.</p>
           <div class="project-metrics">
             <div class="metric"><div class="v">40</div><div class="l" data-en="Agents" data-ru="Опер.">Опер.</div></div>
             <div class="metric"><div class="v">50</div><div class="l" data-en="Landings" data-ru="Лендингов">Лендингов</div></div>
@@ -1370,19 +1387,13 @@ footer {
           </div>
         </div>
         <div class="project-shots">
-          <div class="shot-row">
-            <a class="shot" data-shot="screenshots/asterisk-cdr.png" data-caption="FreePBX CDR · call detail records dashboard">
-              <img src="screenshots/asterisk-cdr.png" alt="Asterisk CDR">
-              <div class="shot-caption"><span class="accent">01</span> · Asterisk</div>
-            </a>
-            <a class="shot" data-shot="screenshots/crm-leadvertex.png" data-caption="LeadVertex CRM · order funnel and lead routing">
-              <img src="screenshots/crm-leadvertex.png" alt="LeadVertex CRM">
-              <div class="shot-caption"><span class="accent">02</span> · CRM</div>
-            </a>
-          </div>
+          <a class="shot" data-shot="screenshots/crm-leadvertex.png" data-caption="LeadVertex CRM · order funnel and lead routing">
+            <img src="screenshots/crm-leadvertex.png" alt="LeadVertex CRM">
+            <div class="shot-caption"><span class="accent">01</span> · LeadVertex CRM</div>
+          </a>
           <a class="shot" data-shot="screenshots/landing-product.png" data-caption="One of the 50 product landing pages with lead-routing into CRM">
             <img src="screenshots/landing-product.png" alt="Product landing page">
-            <div class="shot-caption"><span class="accent">03</span> · Product landing</div>
+            <div class="shot-caption"><span class="accent">02</span> · Product landing</div>
           </a>
         </div>
       </article>
@@ -1390,15 +1401,15 @@ footer {
       <article class="project-card reveal">
         <div class="project-info">
           <div class="project-num">PROJECT <span>/ 04</span></div>
-          <h3 class="project-title" data-en="n8n Automations" data-ru="n8n автоматизации">n8n автоматизации</h3>
-          <div class="project-sub" data-en="AI-driven workflows in production" data-ru="Production AI-workflow на self-hosted n8n">Production AI-workflow на self-hosted n8n</div>
-          <p class="project-desc" data-en="Self-hosted n8n with multiple production flows: <strong>MAX → Telegram university announcements mirror</strong> with LLM routing per course; AI-generated social posts; AI-generated product photos for online-shop." data-ru="Self-hosted n8n с несколькими production-флоу: <strong>мост МАКС → Telegram для уведомлений университета</strong> с AI-маршрутизацией по курсам; AI-генерация постов для соцсетей; AI-фотогенерация карточек товаров для интернет-магазина.">Self-hosted n8n с несколькими production-флоу: <strong>мост МАКС → Telegram для уведомлений университета</strong> с AI-маршрутизацией по курсам; AI-генерация постов для соцсетей; AI-фотогенерация карточек товаров для интернет-магазина.</p>
+          <h3 class="project-title" data-en="Workflow Automation" data-ru="Workflow-автоматизация">Workflow-автоматизация</h3>
+          <div class="project-sub" data-en="Multi-channel content &amp; AI pipelines on self-hosted n8n" data-ru="Multi-channel контент- и AI-пайплайны на self-hosted n8n">Multi-channel контент- и AI-пайплайны на self-hosted n8n</div>
+          <p class="project-desc" data-en="Self-hosted n8n cluster running multiple production flows: <strong>cross-platform content delivery</strong> with LLM-based classification and routing; AI-driven content generation for social channels; image generation for product catalogs. Pipelines are versioned, monitored, and recover from upstream API failures with retries and Telegram alerts." data-ru="Self-hosted n8n с несколькими production-флоу: <strong>кросс-платформенная доставка контента</strong> с LLM-классификацией и маршрутизацией; AI-генерация контента для соцканалов; AI-фотогенерация для каталога товаров. Пайплайны версионируются, мониторятся и устойчивы к падениям внешних API через ретраи и алерты в Telegram.">Self-hosted n8n с несколькими production-флоу: <strong>кросс-платформенная доставка контента</strong> с LLM-классификацией и маршрутизацией; AI-генерация контента для соцканалов; AI-фотогенерация для каталога товаров. Пайплайны версионируются, мониторятся и устойчивы к падениям внешних API через ретраи и алерты в Telegram.</p>
           <div class="project-stack">
             <span class="tag">n8n</span><span class="tag">OpenRouter</span><span class="tag">Gemini</span><span class="tag">Telegram API</span><span class="tag">KIE.ai</span><span class="tag">Postgres</span>
           </div>
         </div>
         <div class="project-shots">
-          <a class="shot" data-shot="screenshots/n8n-workflow.png" data-caption="n8n workflow canvas · МАКС → Telegram mirror with LLM routing">
+          <a class="shot" data-shot="screenshots/n8n-workflow.png" data-caption="n8n workflow canvas · LLM routing and content delivery">
             <img src="screenshots/n8n-workflow.png" alt="n8n workflow">
             <div class="shot-caption"><span class="accent">01</span> · n8n workflow canvas</div>
           </a>
@@ -1520,7 +1531,7 @@ footer {
     </div>
     <div class="reveal">
       <div class="contact-head" data-en="Open to <em>junior DevOps</em> roles." data-ru="Открыт к <em>junior DevOps</em> ролям.">Открыт к <em>junior DevOps</em> ролям.</div>
-      <p class="contact-prose" data-en="Looking for a Junior DevOps / Infrastructure / SRE role in Moscow with hybrid or full-office, growing in a team with mature mentorship." data-ru="Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством.">Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством.</p>
+      <p class="contact-prose" data-en="Looking for a Junior DevOps / Infrastructure / SRE role in Moscow with hybrid or full-office, growing in a team with mature mentorship. Available within 1-2 weeks." data-ru="Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством. Готов выйти в течение 1–2 недель.">Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством. Готов выйти в течение 1–2 недель.</p>
       <div class="contact-list">
         <a href="mailto:nikolai-skorikov@outlook.com" class="contact-item">
           <span class="contact-key">Email</span>
