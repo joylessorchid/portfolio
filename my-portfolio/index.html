@@ -13,14 +13,22 @@ HOW TO ADD SCREENSHOTS
 =============================================================
 1. Create a folder `screenshots/` next to this index.html
 2. Drop in your images using these exact filenames:
-     - proxmox-dashboard.png
-     - bot-telegram.png
-     - bot-grafana.png
-     - asterisk-cdr.png
-     - crm-leadvertex.png
-     - landing-product.png
-     - n8n-workflow.png
-     - homelab-architecture.png
+     - proxmox-dashboard.png       (Project 02 · Proxmox web UI)
+     - bot-telegram.png            (Project 01 · Telegram chat with bot)
+     - bot-architecture.png        (Project 01 · architecture diagram)
+     - crm-leadvertex.png          (Project 03 · LeadVertex CRM panel)
+     - landing-product.png         (Project 03 · one of the landings)
+     - n8n-workflow.png            (Project 04 · n8n workflow canvas)
+     - homelab-architecture.png    (Project 02 · homelab diagram)
+     - grafana-dashboard.png       (Project 05 · per-LXC metrics)
+     - technitium-dns.png          (Project 05 · DNS analytics)
+
+   RECOMMENDED IMAGE SIZES (see SIZING GUIDE below):
+   - Wide screenshots (dashboards): 1600×1000 px @ 16:10
+   - Architecture diagrams: 1600×1000 px @ 16:10
+   - Mobile / chat screenshots: 800×1400 px @ 9:16
+   - Square screenshots: 1200×1200 px @ 1:1
+   - Format: PNG (UI) or JPG (photos) · Target: 200-500 KB each
 3. If file is missing — placeholder shows automatically.
 4. Click any screenshot to open lightbox.
 =============================================================
@@ -1337,9 +1345,9 @@ footer {
             <img src="screenshots/bot-telegram.png" alt="Bot UI · Telegram">
             <div class="shot-caption"><span class="accent">01</span> · Bot interface in Telegram</div>
           </a>
-          <a class="shot" data-shot="screenshots/bot-grafana.png" data-caption="Grafana monitoring · DAU / errors / response time">
-            <img src="screenshots/bot-grafana.png" alt="Grafana monitoring">
-            <div class="shot-caption"><span class="accent">02</span> · Grafana monitoring</div>
+          <a class="shot" data-shot="screenshots/bot-architecture.png" data-caption="Bot architecture · Telegram → reverse proxy → bot core → Postgres + AI gateway">
+            <img src="screenshots/bot-architecture.png" alt="Bot architecture diagram">
+            <div class="shot-caption"><span class="accent">02</span> · Architecture diagram</div>
           </a>
         </div>
       </article>
@@ -1349,18 +1357,18 @@ footer {
           <div class="project-num">PROJECT <span>/ 02</span></div>
           <h3 class="project-title" data-en="Self-Hosted Homelab" data-ru="Self-hosted Homelab">Self-hosted Homelab</h3>
           <div class="project-sub" data-en="Personal cloud platform · 12+ months in production" data-ru="Личная cloud-платформа · 12+ месяцев в эксплуатации">Личная cloud-платформа · 12+ месяцев в эксплуатации</div>
-          <p class="project-desc" data-en="A private cloud where I run, monitor and back up my own services. Single Proxmox node hosts <strong>6 LXC containers + 1 QEMU VM</strong> behind a single reverse proxy — git, workflows, databases, Docker workloads, an LMS — with automated backups, ZFS snapshots, Telegram alerting and ~99% uptime tracked over 12+ months." data-ru="Приватное облако, на котором я разворачиваю, мониторю и бэкаплю собственные сервисы. Single-node Proxmox хостит <strong>6 LXC-контейнеров + 1 QEMU VM</strong> за единым reverse proxy — git, workflow-движок, БД, Docker-нагрузки, LMS — с автобэкапами, ZFS-снапшотами, Telegram-алертингом и ~99% uptime за 12+ месяцев.">Приватное облако, на котором я разворачиваю, мониторю и бэкаплю собственные сервисы. Single-node Proxmox хостит <strong>6 LXC-контейнеров + 1 QEMU VM</strong> за единым reverse proxy — git, workflow-движок, БД, Docker-нагрузки, LMS — с автобэкапами, ZFS-снапшотами, Telegram-алертингом и ~99% uptime за 12+ месяцев.</p>
+          <p class="project-desc" data-en="A private cloud where I run, monitor and back up my own services. Single Proxmox node hosts <strong>10 LXC containers + 1 QEMU VM</strong> behind a single reverse proxy — git, workflows, databases, Docker workloads, an LMS, plus a full observability stack and local DNS server. Automated backups, ZFS snapshots, Telegram alerting, ~99% uptime over 12+ months." data-ru="Приватное облако, на котором я разворачиваю, мониторю и бэкаплю собственные сервисы. Single-node Proxmox хостит <strong>10 LXC-контейнеров + 1 QEMU VM</strong> за единым reverse proxy — git, workflow-движок, БД, Docker-нагрузки, LMS, полноценный observability-стек и локальный DNS-сервер. Автобэкапы, ZFS-снапшоты, Telegram-алертинг, ~99% uptime за 12+ месяцев.">Приватное облако, на котором я разворачиваю, мониторю и бэкаплю собственные сервисы. Single-node Proxmox хостит <strong>10 LXC-контейнеров + 1 QEMU VM</strong> за единым reverse proxy — git, workflow-движок, БД, Docker-нагрузки, LMS, полноценный observability-стек и локальный DNS-сервер. Автобэкапы, ZFS-снапшоты, Telegram-алертинг, ~99% uptime за 12+ месяцев.</p>
           <div class="project-metrics">
-            <div class="metric"><div class="v">6 LXC</div><div class="l">Containers</div></div>
+            <div class="metric"><div class="v">10 LXC</div><div class="l">Containers</div></div>
             <div class="metric"><div class="v">12+ mo</div><div class="l">Uptime</div></div>
             <div class="metric"><div class="v">~99%</div><div class="l">Avail.</div></div>
           </div>
           <div class="project-stack">
-            <span class="tag">Proxmox VE</span><span class="tag">LXC</span><span class="tag">Docker</span><span class="tag">Caddy</span><span class="tag">NPMplus</span><span class="tag">Postgres</span><span class="tag">Gitea</span><span class="tag">n8n</span>
+            <span class="tag">Proxmox VE</span><span class="tag">LXC</span><span class="tag">Docker</span><span class="tag">Caddy</span><span class="tag">NPMplus</span><span class="tag">Postgres</span><span class="tag">Gitea</span><span class="tag">n8n</span><span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">Technitium DNS</span>
           </div>
         </div>
         <div class="project-shots">
-          <a class="shot" data-shot="screenshots/proxmox-dashboard.png" data-caption="Proxmox VE 9.x dashboard · 6 LXC + 1 QEMU VM, 34+ days uptime">
+          <a class="shot" data-shot="screenshots/proxmox-dashboard.png" data-caption="Proxmox VE 9.1.9 · 10 LXC + 1 QEMU VM running on a single mini-PC node">
             <img src="screenshots/proxmox-dashboard.png" alt="Proxmox dashboard">
             <div class="shot-caption"><span class="accent">01</span> · Proxmox dashboard</div>
           </a>
@@ -1416,6 +1424,33 @@ footer {
         </div>
       </article>
 
+      <article class="project-card reveal">
+        <div class="project-info">
+          <div class="project-num">PROJECT <span>/ 05</span></div>
+          <h3 class="project-title" data-en="Monitoring &amp; DNS" data-ru="Мониторинг и DNS">Мониторинг и DNS</h3>
+          <div class="project-sub" data-en="Observability stack &amp; local DNS — both built from scratch" data-ru="Observability-стек и локальный DNS — оба развёрнуты с нуля">Observability-стек и локальный DNS — оба развёрнуты с нуля</div>
+          <p class="project-desc" data-en="Production-grade observability for the homelab: <strong>Prometheus + node_exporter + pve-exporter</strong> collect metrics from every LXC and the Proxmox host; Grafana dashboards visualize CPU, memory, disk and network at per-container granularity. Paired with a self-hosted <strong>Technitium DNS</strong> for local split-DNS, caching, and per-client analytics." data-ru="Production-grade observability для homelab: <strong>Prometheus + node_exporter + pve-exporter</strong> собирают метрики со всех LXC и Proxmox-хоста; Grafana-дашборды визуализируют CPU, memory, disk и network на уровне per-container. В пару — self-hosted <strong>Technitium DNS</strong> для локального split-DNS, кэширования и аналитики по клиентам.">Production-grade observability для homelab: <strong>Prometheus + node_exporter + pve-exporter</strong> собирают метрики со всех LXC и Proxmox-хоста; Grafana-дашборды визуализируют CPU, memory, disk и network на уровне per-container. В пару — self-hosted <strong>Technitium DNS</strong> для локального split-DNS, кэширования и аналитики по клиентам.</p>
+          <div class="project-metrics">
+            <div class="metric"><div class="v">10</div><div class="l" data-en="Targets" data-ru="Targets">Targets</div></div>
+            <div class="metric"><div class="v">15s</div><div class="l" data-en="Scrape int." data-ru="Scrape">Scrape</div></div>
+            <div class="metric"><div class="v">10+</div><div class="l" data-en="Panels" data-ru="Панелей">Панелей</div></div>
+          </div>
+          <div class="project-stack">
+            <span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">node_exporter</span><span class="tag">pve-exporter</span><span class="tag">Technitium DNS</span><span class="tag">Telegram alerts</span>
+          </div>
+        </div>
+        <div class="project-shots">
+          <a class="shot" data-shot="screenshots/grafana-dashboard.png" data-caption="Grafana · per-container CPU, memory, disk usage across all LXC">
+            <img src="screenshots/grafana-dashboard.png" alt="Grafana monitoring dashboard">
+            <div class="shot-caption"><span class="accent">01</span> · Grafana · per-container metrics</div>
+          </a>
+          <a class="shot" data-shot="screenshots/technitium-dns.png" data-caption="Technitium DNS · query analytics, cache hit ratio, client breakdown">
+            <img src="screenshots/technitium-dns.png" alt="Technitium DNS dashboard">
+            <div class="shot-caption"><span class="accent">02</span> · Technitium DNS analytics</div>
+          </a>
+        </div>
+      </article>
+
     </div>
   </div>
 </section>
@@ -1452,6 +1487,7 @@ footer {
         <div class="skill-group-title" data-en="Monitoring" data-ru="Мониторинг">Мониторинг</div>
         <div class="skill-list">
           <span class="skill">Grafana</span><span class="skill">Prometheus</span>
+          <span class="skill">node_exporter</span><span class="skill">pve-exporter</span>
           <span class="skill">journalctl</span><span class="skill">Telegram alerts</span>
         </div>
       </div>
@@ -1461,8 +1497,9 @@ footer {
         <div class="skill-list">
           <span class="skill">SSL/TLS</span><span class="skill">Let's Encrypt</span>
           <span class="skill">DNS</span><span class="skill">Cloudflare</span>
-          <span class="skill">IPv6</span><span class="skill">Xray-core</span>
-          <span class="skill">SIP</span><span class="skill">ufw</span>
+          <span class="skill">Technitium DNS</span><span class="skill">IPv6</span>
+          <span class="skill">Xray-core</span><span class="skill">SIP</span>
+          <span class="skill">ufw</span>
         </div>
       </div>
 
@@ -1531,7 +1568,7 @@ footer {
     </div>
     <div class="reveal">
       <div class="contact-head" data-en="Open to <em>junior DevOps</em> roles." data-ru="Открыт к <em>junior DevOps</em> ролям.">Открыт к <em>junior DevOps</em> ролям.</div>
-      <p class="contact-prose" data-en="Looking for a Junior DevOps / Infrastructure / SRE role in Moscow with hybrid or full-office, growing in a team with mature mentorship. Available within 1-2 weeks." data-ru="Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством.">Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством.</p>
+      <p class="contact-prose" data-en="Looking for a Junior DevOps / Infrastructure / SRE role in Moscow with hybrid or full-office, growing in a team with mature mentorship. Available within 1-2 weeks." data-ru="Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством. Готов выйти в течение 1–2 недель.">Ищу junior DevOps / Infrastructure / SRE-роль в Москве в формате гибрида или полного офиса, в команде со зрелым менторством. Готов выйти в течение 1–2 недель.</p>
       <div class="contact-list">
         <a href="mailto:nikolai-skorikov@outlook.com" class="contact-item">
           <span class="contact-key">Email</span>
@@ -1664,7 +1701,6 @@ document.querySelectorAll('.shot').forEach(shot => {
       <div class="ph-icon">⊞</div>
       <div class="ph-title">${caption}</div>
       <div class="ph-path">screenshots/${path}</div>
-      <div class="ph-hint">${lang === 'ru' ? 'Добавьте файл' : 'Drop file here'}</div>
     `;
   }
   img.addEventListener('error', showPlaceholder);
