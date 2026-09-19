@@ -39,8 +39,8 @@ export const profile = {
   ] satisfies { value: L10n; label: L10n }[],
 
   marquee: {
-    ru: ['VoiceManager — голосовой AI-агент', 'GadgetPick — магазин с нуля', 'Расписание МПГУ — 3 300+ студентов', 'n8n-пайплайны', 'Homelab на Proxmox', 'Asterisk на 40 операторов'],
-    en: ['VoiceManager — voice AI agent', 'GadgetPick — a store from scratch', 'MPGU Schedule — 3,300+ students', 'n8n pipelines', 'Proxmox homelab', 'Asterisk for 40 agents'],
+    ru: ['VoiceManager — голосовой AI-агент', 'GadgetPick — магазин с нуля', 'Бот с расписанием — 3 300+ студентов', 'n8n-пайплайны', 'Homelab на Proxmox', 'Asterisk на 40 операторов'],
+    en: ['VoiceManager — voice AI agent', 'GadgetPick — a store from scratch', 'Schedule bot — 3,300+ students', 'n8n pipelines', 'Proxmox homelab', 'Asterisk for 40 agents'],
   } satisfies L10n<string[]>,
 
   now: {

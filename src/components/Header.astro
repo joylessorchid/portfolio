@@ -90,7 +90,8 @@ const links = [
     gap: 16px;
   }
   .brand {
-    font-size: 22px;
+    /* на узких телефонах (320–400px) полное имя сжимается, чтобы влезали язык и бургер */
+    font-size: clamp(17px, 5.4vw, 22px);
     white-space: nowrap;
   }
   .nav {
@@ -109,7 +110,7 @@ const links = [
   .actions {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
     justify-self: end;
   }
   .lang {
@@ -175,6 +176,11 @@ const links = [
     margin-top: 28px;
   }
 
+  @media (min-width: 400px) {
+    .actions {
+      gap: 20px;
+    }
+  }
   @media (min-width: 760px) {
     .cv,
     .tg {

@@ -286,7 +286,7 @@ export const projects: Project[] = [
     featured: true,
     status: 'prod',
     tint: 'blue',
-    title: { ru: 'Расписание МПГУ', en: 'MPGU Schedule' },
+    title: { ru: 'Бот с расписанием', en: 'Schedule bot' },
     tag: { ru: 'Telegram Mini App', en: 'Telegram Mini App' },
     tagline: {
       ru: 'Telegram-бот и Mini App с расписанием и AI-ассистентом для 3 300+ студентов',

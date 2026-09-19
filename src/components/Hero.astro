@@ -35,7 +35,7 @@ const marquee = profile.marquee[lang];
           src={photo}
           alt={profile.name[lang]}
           widths={[480, 720, 960]}
-          sizes="(min-width: 960px) 440px, 100vw"
+          sizes="(min-width: 1467px) 440px, (min-width: 640px) 30vw, 100vw"
           quality={80}
           loading="eager"
           fetchpriority="high"
@@ -95,6 +95,8 @@ const marquee = profile.marquee[lang];
     align-items: flex-start;
     gap: 22px;
     min-width: 0;
+    /* размер имени считается от ширины этой колонки, чтобы слово не заезжало под фото */
+    container: herotext / inline-size;
   }
   .name {
     display: flex;
@@ -102,14 +104,18 @@ const marquee = profile.marquee[lang];
     line-height: 0.86;
     margin-top: 6px;
   }
+  /* Ширины слов в em измерены в браузере: «НИКОЛАЙ» 4.51, «Скориков» 4.73 (RU), у EN короче.
+     Делим на чуть большее число, чтобы оставался запас. */
   .first {
     font-weight: 800;
     font-size: clamp(3.6rem, 1.2rem + 8.6vw, 7.4rem);
+    font-size: min(clamp(3.6rem, 1.2rem + 8.6vw, 7.4rem), calc(100cqw / 4.75));
     letter-spacing: -0.065em;
     text-transform: uppercase;
   }
   .last {
     font-size: clamp(4.2rem, 1.4rem + 10.8vw, 9.4rem);
+    font-size: min(clamp(4.2rem, 1.4rem + 10.8vw, 9.4rem), calc(100cqw / 4.95));
     letter-spacing: -0.03em;
     color: var(--accent);
     margin-top: 0.03em;
@@ -142,9 +148,11 @@ const marquee = profile.marquee[lang];
   .photo :global(img) {
     width: 100%;
     height: auto;
-    aspect-ratio: 440 / 520;
+    /* телефон: широкий кадр по грудь, чтобы фото не занимало полэкрана */
+    aspect-ratio: 3 / 2;
+    max-height: 300px;
     object-fit: cover;
-    object-position: 50% 28%;
+    object-position: 50% 20%;
     mix-blend-mode: multiply;
     filter: contrast(1.05) saturate(0.85);
     transition: transform 1.2s var(--ease);
@@ -218,12 +226,20 @@ const marquee = profile.marquee[lang];
       flex: 1 1 100%;
     }
   }
-  @media (min-width: 960px) {
+  @media (min-width: 640px) {
+    /* планшет и выше: фото рядом с текстом, ширина плавно растёт до 440px */
     .grid {
-      grid-template-columns: minmax(0, 1fr) 440px;
-      gap: 64px;
+      grid-template-columns: minmax(0, 1fr) clamp(200px, 30vw, 440px);
+      gap: clamp(24px, 4vw, 64px);
       align-items: end;
     }
+    .photo :global(img) {
+      aspect-ratio: 440 / 520;
+      max-height: none;
+      object-position: 50% 28%;
+    }
+  }
+  @media (min-width: 960px) {
     .band {
       height: 64px;
     }
