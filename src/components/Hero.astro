@@ -1,0 +1,257 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import photo from '../assets/photo.jpg';
+import { cvFile, useUi, type Lang } from '../i18n/ui';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useUi(lang);
+const marquee = profile.marquee[lang];
+---
+
+<section class="hero recede" aria-labelledby="hero-title">
+  <div class="wrap grid">
+    <div class="text">
+      <p class="eyebrow rise"><span class="dot dot-live"></span>{profile.availability[lang]} · {profile.locationShort[lang]}</p>
+      <h1 id="hero-title" class="name rise rise-1">
+        <span class="first">{profile.firstName[lang]}</span>
+        <span class="last display">{profile.lastName[lang]}</span>
+      </h1>
+      <p class="role rise rise-2">{profile.role[lang]}</p>
+      <p class="lead rise rise-3">{profile.lead[lang]}</p>
+      <div class="cta rise rise-4">
+        <a class="pill pill-ink" href={profile.contacts.telegram.url}><Icon name="send" />{t.telegram}</a>
+        <a class="pill pill-line" href={cvFile[lang]} download><Icon name="download" />{t.cv}</a>
+      </div>
+    </div>
+
+    <figure class="portrait rise rise-2">
+      <div class="photo">
+        <Image
+          src={photo}
+          alt={profile.name[lang]}
+          widths={[480, 720, 960]}
+          sizes="(min-width: 960px) 440px, 100vw"
+          quality={80}
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+      <figcaption class="cap mono">
+        <span>{profile.portraitCaption[lang][0]}</span>
+        <span>{profile.portraitCaption[lang][1]}</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <div class="marquee band" aria-hidden="true">
+    <div class="marquee-track">
+      {
+        [0, 1].map(() => (
+          <p class="mono">
+            {marquee.map((item) => (
+              <>
+                <span>{item}</span>
+                <span class="star">✦</span>
+              </>
+            ))}
+          </p>
+        ))
+      }
+    </div>
+  </div>
+
+  <ul class="wrap stats">
+    {
+      profile.stats.map((s) => (
+        <li>
+          <span class="value display">{s.value[lang]}</span>
+          <span class="label">{s.label[lang]}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    z-index: 0;
+    /* свой фон нужен: анимация transform изолирует блок, и multiply у портрета считается от него */
+    background: var(--paper);
+  }
+  .grid {
+    display: grid;
+    gap: 36px;
+    padding-block: clamp(32px, 4vw, 56px);
+  }
+  .text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+    min-width: 0;
+  }
+  .name {
+    display: flex;
+    flex-direction: column;
+    line-height: 0.86;
+    margin-top: 6px;
+  }
+  .first {
+    font-weight: 800;
+    font-size: clamp(3.6rem, 1.2rem + 8.6vw, 7.4rem);
+    letter-spacing: -0.065em;
+    text-transform: uppercase;
+  }
+  .last {
+    font-size: clamp(4.2rem, 1.4rem + 10.8vw, 9.4rem);
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    margin-top: 0.03em;
+  }
+  .role {
+    font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .lead {
+    max-width: 620px;
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .portrait {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .photo {
+    overflow: hidden;
+    border-radius: 6px;
+  }
+  .photo :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 440 / 520;
+    object-fit: cover;
+    object-position: 50% 28%;
+    mix-blend-mode: multiply;
+    filter: contrast(1.05) saturate(0.85);
+    transition: transform 1.2s var(--ease);
+  }
+  .photo:hover :global(img) {
+    transform: scale(1.02);
+  }
+  .cap {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .band {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    border-block: 1px solid var(--line);
+    background: var(--paper-2);
+  }
+  .band p {
+    display: flex;
+    gap: 32px;
+    padding-right: 32px;
+    white-space: nowrap;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--ink-2);
+  }
+  .star {
+    color: var(--accent);
+  }
+
+  .stats {
+    display: grid;
+    gap: 0;
+    /* сброс ul[class] в global.css перебивает .wrap — возвращаем поля */
+    padding-inline: var(--gutter);
+  }
+  .stats li {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .value {
+    flex: none;
+    min-width: 4.2ch;
+    font-size: clamp(2.6rem, 2rem + 2vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+  }
+  .label {
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--ink-2);
+    text-wrap: balance;
+  }
+
+  @media (max-width: 559px) {
+    .cta {
+      width: 100%;
+    }
+    .cta .pill {
+      flex: 1 1 100%;
+    }
+  }
+  @media (min-width: 960px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr) 440px;
+      gap: 64px;
+      align-items: end;
+    }
+    .band {
+      height: 64px;
+    }
+    .band p {
+      gap: 40px;
+      padding-right: 40px;
+      font-size: 14px;
+    }
+    .stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      height: 200px;
+    }
+    .stats li {
+      align-items: center;
+      gap: 24px;
+      padding: 0 32px;
+      border-bottom: 0;
+      border-right: 1px solid var(--line);
+    }
+    .stats li:first-child {
+      padding-left: 0;
+    }
+    .stats li:last-child {
+      padding-right: 0;
+      border-right: 0;
+    }
+    .label br {
+      display: none;
+    }
+  }
+</style>

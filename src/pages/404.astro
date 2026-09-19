@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import { ui } from '../i18n/ui';
+---
+
+<Base lang="ru" title="404 — Страница не найдена · Page not found" description="" path="/404/" noindex alternates={false}>
+  <section class="wrap nf">
+    <p class="code">404</p>
+    <div class="cols">
+      <div lang="ru">
+        <h1>{ui.ru.notFound.title}</h1>
+        <p>{ui.ru.notFound.text}</p>
+        <a class="btn btn-primary" href="/">{ui.ru.notFound.home}</a>
+      </div>
+      <div lang="en">
+        <h2>{ui.en.notFound.title}</h2>
+        <p>{ui.en.notFound.text}</p>
+        <a class="btn" href="/en/">{ui.en.notFound.home}</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    padding-block: clamp(64px, 12vw, 140px);
+  }
+  .code {
+    font-size: clamp(6rem, 3rem + 14vw, 14rem);
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    font-weight: 700;
+    font-family: var(--font-display);
+    font-weight: 400;
+    color: var(--accent);
+  }
+  .cols {
+    display: grid;
+    gap: 40px;
+    margin-top: 48px;
+  }
+  .cols > div {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+  }
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+  }
+  p {
+    color: var(--ink-2);
+  }
+  @media (min-width: 768px) {
+    .cols {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

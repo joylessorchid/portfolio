@@ -1,0 +1,358 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import photo from '../assets/photo.jpg';
+import { profile } from '../data/profile';
+import { projects } from '../data/projects';
+import { jobs, education } from '../data/experience';
+import { skills, skillLabel } from '../data/skills';
+import { cvFile, localePath, useUi, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useUi(lang);
+const c = profile.contacts;
+
+const L = {
+  ru: {
+    summaryTitle: 'О себе',
+    summary:
+      'Инженер AI-продуктов и инфраструктуры. Более двух лет эксплуатации production-сервисов: Telegram-бот для 3 300+ студентов МПГУ, телефония на 40 операторов, интернет-магазин с собственной админкой и AI-автоматизациями, голосовой AI-агент для исходящих продаж. Полный цикл — от архитектуры и интеграций до деплоя, мониторинга и поддержки.',
+    xp: 'Опыт работы',
+    projects: 'Проекты',
+    skills: 'Навыки',
+    edu: 'Образование',
+    extra: 'Дополнительно',
+    format: 'Формат: удалённо, гибрид или офис; фриланс-проекты или полная занятость.',
+    study: 'Магистратура НИУ ВШЭ — онлайн по вечерам, совместима с полной занятостью.',
+  },
+  en: {
+    summaryTitle: 'Summary',
+    summary:
+      'AI product and infrastructure engineer. Over two years of operating production services: a Telegram bot for 3,300+ MPGU students, telephony for a 40-agent call center, an online store with a custom admin and AI automation, and a voice AI agent for outbound sales. Full cycle — architecture and integrations, deployment, monitoring and support.',
+    xp: 'Experience',
+    projects: 'Projects',
+    skills: 'Skills',
+    edu: 'Education',
+    extra: 'Additional',
+    format: 'Work format: remote, hybrid or on-site; freelance projects or full-time.',
+    study: 'The HSE master’s programme is online in the evenings — compatible with full-time work.',
+  },
+}[lang];
+---
+
+<Base
+  lang={lang}
+  title={`${t.cvPage.title} · ${profile.name[lang]}`}
+  description={profile.metaDescription[lang]}
+  path="/cv/"
+  bare
+>
+  <div class="toolbar">
+    <a class="pill pill-line pill-sm" href={localePath(lang, '/')}><Icon name="arrow-left" />{t.cvPage.back}</a>
+    <a class="pill pill-ink pill-sm" href={cvFile[lang]} download><Icon name="download" />{t.cvPage.download}</a>
+  </div>
+
+  <div class="paper">
+    <header class="top">
+      <div class="who">
+        <h1>{profile.name[lang]}</h1>
+        <p class="role">{profile.role[lang]}</p>
+        <p class="loc">{profile.location[lang]}</p>
+        <ul class="contacts">
+          <li><a href={`mailto:${c.email}`}>{c.email}</a></li>
+          <li><a href={c.telegram.url}>Telegram {c.telegram.handle}</a></li>
+          <li><a href={`https://${c.site}${lang === 'en' ? '/en/' : '/'}`}>{c.site}</a></li>
+          <li><a href={c.linkedin.url}>linkedin.com{c.linkedin.handle}</a></li>
+          <li><a href={c.github.url}>github.com{c.github.handle}</a></li>
+        </ul>
+      </div>
+      {
+        lang === 'ru' && (
+          <Image class="photo" src={photo} alt={profile.name[lang]} width={220} height={220} quality={82} loading="eager" />
+        )
+      }
+    </header>
+
+    <section>
+      <h2>{L.summaryTitle}</h2>
+      <p>{L.summary}</p>
+    </section>
+
+    <section>
+      <h2>{L.xp}</h2>
+      {
+        jobs.map((j) => (
+          <div class="entry">
+            <div class="entry-head">
+              <p>
+                <b>{j.role[lang]}</b> — {(j.orgCv ?? j.org)[lang]}
+              </p>
+              <p class="date">{j.period[lang]}</p>
+            </div>
+            <ul>
+              {j.bullets[lang].map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </section>
+
+    <section>
+      <h2>{L.projects}</h2>
+      <ul class="projects">
+        {
+          projects.map((p) => (
+            <li>
+              <b>{p.title[lang]}</b>
+              {p.link && <span class="plink"> · {p.link.label}</span>} — {p.cv[lang]}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>{L.skills}</h2>
+      <dl class="skills">
+        {
+          skills.map((g) => (
+            <div>
+              <dt>{g.title[lang]}:</dt>
+              <dd>{g.items.map((i) => skillLabel(i, lang)).join(', ')}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section>
+      <h2>{L.edu}</h2>
+      {
+        education.map((e) => (
+          <div class="entry">
+            <div class="entry-head">
+              <p>
+                <b>{e.org[lang]}</b> — {e.program[lang]}
+              </p>
+              <p class="date">{e.period[lang]}</p>
+            </div>
+            <p class="edu-details">{e.details[lang]}</p>
+          </div>
+        ))
+      }
+    </section>
+
+    <section>
+      <h2>{L.extra}</h2>
+      <ul>
+        {profile.languages[lang].map((l) => <li>{l}</li>)}
+        <li>{L.format}</li>
+        <li>{L.study}</li>
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<style>
+  @page {
+    size: A4;
+    margin: 13mm 14mm 13mm;
+  }
+  :global(body) {
+    background: #e8e8e4;
+    color: #16161a;
+  }
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    background: rgb(232 232 228 / 0.85);
+    backdrop-filter: blur(10px);
+  }
+  .paper {
+    --ink: #16161a;
+    --ink-2: #45454c;
+    --ink-3: #75757d;
+    --rule: #dcdcd7;
+    width: min(210mm, 100% - 24px);
+    margin: 12px auto 48px;
+    padding: 13mm 14mm;
+    background: #fff;
+    color: var(--ink);
+    box-shadow: 0 2px 30px rgb(0 0 0 / 0.1);
+    font-size: 9.6pt;
+    line-height: 1.45;
+  }
+  .top {
+    display: flex;
+    justify-content: space-between;
+    gap: 8mm;
+    padding-bottom: 5mm;
+    border-bottom: 1.5px solid var(--ink);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: 24pt;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+  }
+  .role {
+    margin-top: 1.5mm;
+    font-size: 12pt;
+    font-weight: 560;
+    letter-spacing: -0.01em;
+  }
+  .loc {
+    margin-top: 1mm;
+    color: var(--ink-2);
+  }
+  .contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6mm 4mm;
+    margin-top: 2.5mm;
+    padding: 0;
+    list-style: none;
+    font-size: 9pt;
+  }
+  .contacts li {
+    margin: 0;
+  }
+  .contacts a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 2px;
+  }
+  .top :global(.photo) {
+    width: 27mm;
+    height: 27mm;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 50% 28%;
+    flex: none;
+  }
+  section {
+    margin-top: 5mm;
+  }
+  h2 {
+    margin-bottom: 2mm;
+    padding-bottom: 1mm;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 8.5pt;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  p {
+    color: var(--ink);
+  }
+  .entry {
+    break-inside: avoid;
+    margin-top: 3mm;
+  }
+  .entry:first-of-type {
+    margin-top: 0;
+  }
+  .entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4mm;
+  }
+  .date {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 8.5pt;
+    color: var(--ink-3);
+  }
+  ul {
+    margin-top: 1mm;
+    padding-left: 4.5mm;
+    color: var(--ink-2);
+  }
+  li {
+    margin-top: 0.6mm;
+  }
+  li::marker {
+    color: var(--ink-3);
+  }
+  .projects {
+    padding: 0;
+    list-style: none;
+  }
+  .projects li {
+    break-inside: avoid;
+    margin-top: 1.4mm;
+  }
+  .projects b,
+  .entry b {
+    color: var(--ink);
+    font-weight: 620;
+  }
+  .plink {
+    color: var(--ink-3);
+  }
+  .skills {
+    display: grid;
+    gap: 0.8mm;
+    color: var(--ink-2);
+  }
+  .skills div {
+    display: flex;
+    gap: 2mm;
+  }
+  dt {
+    flex: none;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  dd {
+    margin: 0;
+  }
+  .edu-details {
+    margin-top: 0.8mm;
+    color: var(--ink-2);
+  }
+
+  @media print {
+    :global(body) {
+      background: #fff;
+    }
+    .toolbar {
+      display: none;
+    }
+    .paper {
+      width: auto;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+    }
+  }
+  @media screen and (max-width: 640px) {
+    .paper {
+      padding: 20px 18px;
+      font-size: 10.5pt;
+    }
+    .top {
+      flex-direction: column-reverse;
+    }
+    .entry-head {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+</style>

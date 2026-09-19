@@ -1,0 +1,128 @@
+---
+import Icon from './Icon.astro';
+import { jobs, education } from '../data/experience';
+import { cvFile, useUi, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useUi(lang);
+const s = t.sections.experience;
+---
+
+<section id="experience" class="wrap section" aria-labelledby="experience-title">
+  <div class="cols">
+    <header class="side reveal">
+      <h2 id="experience-title" class="h-section">{s.title}</h2>
+      <p class="lead">{s.lead}</p>
+      <a class="pill pill-line pill-sm" href={cvFile[lang]} download><Icon name="download" />{t.cv}</a>
+    </header>
+
+    <ol class="rows">
+      {
+        jobs.map((j) => (
+          <li class="row reveal">
+            <span class="period mono">
+              {j.current && <span class="dot dot-live" />}
+              {j.period[lang]}
+            </span>
+            <div class="body">
+              <span class="title">{j.role[lang]} · {j.org[lang]}</span>
+              <span class="sub">{j.summary[lang]}</span>
+            </div>
+          </li>
+        ))
+      }
+      {
+        education.map((e) => (
+          <li class="row reveal">
+            <span class="period mono">
+              {e.current && <span class="dot dot-live" />}
+              {e.period[lang]}
+            </span>
+            <div class="body">
+              <span class="title">{e.org[lang]} · {e.program[lang]}</span>
+              <span class="sub">{e.details[lang]}</span>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  section {
+    border-top: 1px solid var(--line);
+  }
+  .cols {
+    display: grid;
+    gap: 32px;
+  }
+  .side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .side .lead {
+    font-size: 16px;
+  }
+  .rows {
+    display: flex;
+    flex-direction: column;
+  }
+  .row {
+    display: grid;
+    gap: 6px;
+    padding: 22px 0;
+    border-top: 1px solid var(--line);
+  }
+  .row:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .period {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--ink-3);
+    padding-top: 4px;
+  }
+  .body {
+    display: grid;
+    gap: 4px;
+  }
+  .title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .sub {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  @media (min-width: 720px) {
+    .row {
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 24px;
+    }
+    .title {
+      font-size: 22px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .cols {
+      grid-template-columns: 400px minmax(0, 1fr);
+      gap: 64px;
+    }
+    .side {
+      position: sticky;
+      top: calc(var(--header-h) + 32px);
+    }
+  }
+</style>

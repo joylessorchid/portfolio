@@ -1,0 +1,227 @@
+---
+import { Image, getImage } from 'astro:assets';
+import Icon from './Icon.astro';
+import type { Shot } from '../data/projects';
+import { useUi, type Lang } from '../i18n/ui';
+
+interface Props {
+  shots: Shot[];
+  lang: Lang;
+}
+const { shots, lang } = Astro.props;
+const t = useUi(lang);
+
+// Полноразмерная версия для лайтбокса (она же — ссылка, если JS не загрузился).
+const items = await Promise.all(
+  shots.map(async (s) => ({
+    shot: s,
+    full: await getImage({ src: s.src, quality: 88 }),
+  })),
+);
+const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
+---
+
+<div class:list={['gallery', { phones }]} data-gallery>
+  {
+    items.map(({ shot, full }, i) => (
+      <figure class:list={['item', 'reveal', { wide: !phones && i === 0 }]}>
+        <a
+          class="zoom"
+          href={full.src}
+          data-lightbox
+          data-caption={shot.alt[lang]}
+          data-w={full.attributes.width}
+          data-h={full.attributes.height}
+          aria-label={`${t.project.openImage}: ${shot.alt[lang]}`}
+        >
+          <Image
+            src={shot.src}
+            alt={shot.alt[lang]}
+            widths={phones ? [320, 480, 640] : [640, 960, 1280, 1600]}
+            sizes={phones ? '(min-width: 960px) 240px, 45vw' : i === 0 ? '(min-width: 1200px) 1136px, 92vw' : '(min-width: 960px) 560px, 92vw'}
+            quality={84}
+            class="reveal-zoom"
+          />
+          <span class="hint" aria-hidden="true"><Icon name="expand" size={16} /></span>
+        </a>
+        <figcaption>{shot.alt[lang]}</figcaption>
+      </figure>
+    ))
+  }
+</div>
+
+<dialog class="lightbox" data-lightbox-dialog aria-label={t.project.screens}>
+  <button class="lb-close" type="button" data-lb-close aria-label={t.close}><Icon name="x" /></button>
+  <button class="lb-nav prev" type="button" data-lb-prev aria-label="←"><Icon name="arrow-left" /></button>
+  <img alt="" data-lb-img />
+  <button class="lb-nav next" type="button" data-lb-next aria-label="→"><Icon name="arrow-right" /></button>
+  <p class="lb-caption" data-lb-caption></p>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox-dialog]');
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-lightbox]'));
+  if (dialog && links.length) {
+    const img = dialog.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const caption = dialog.querySelector<HTMLElement>('[data-lb-caption]')!;
+    let current = 0;
+    const show = (i: number) => {
+      current = (i + links.length) % links.length;
+      const a = links[current];
+      img.src = a.href;
+      img.alt = a.dataset.caption ?? '';
+      img.width = Number(a.dataset.w);
+      img.height = Number(a.dataset.h);
+      caption.textContent = a.dataset.caption ?? '';
+    };
+    links.forEach((a, i) =>
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        show(i);
+        dialog.showModal();
+      }),
+    );
+    dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => show(current - 1));
+    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => show(current + 1));
+    dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+    if (links.length < 2) dialog.querySelectorAll<HTMLElement>('.lb-nav').forEach((b) => (b.hidden = true));
+  }
+</script>
+
+<style>
+  .gallery {
+    display: grid;
+    gap: 16px;
+  }
+  .item {
+    display: grid;
+    gap: 10px;
+  }
+  .zoom {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--bg-sunk);
+    cursor: zoom-in;
+  }
+  .zoom :global(img) {
+    width: 100%;
+    height: auto;
+    transition: scale 0.5s var(--ease);
+  }
+  .zoom:hover :global(img) {
+    scale: 1.015;
+  }
+  .hint {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    color: #fff;
+    background: rgb(0 0 0 / 0.55);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .zoom:hover .hint,
+  .zoom:focus-visible .hint {
+    opacity: 1;
+  }
+  figcaption {
+    color: var(--ink-3);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .phones {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .phones .zoom {
+    border-radius: 24px;
+  }
+  @media (min-width: 768px) {
+    .gallery:not(.phones) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .lightbox {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 56px 16px 72px;
+    border: 0;
+    background: rgb(8 8 10 / 0.94);
+    color: #f2f2f3;
+  }
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+  .lightbox::backdrop {
+    background: transparent;
+  }
+  .lightbox img {
+    max-width: min(100%, 1800px);
+    max-height: calc(100dvh - 140px);
+    width: auto;
+    height: auto;
+    border-radius: 12px;
+    object-fit: contain;
+  }
+  .lb-caption {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 24px;
+    text-align: center;
+    color: #b4b4bc;
+    font-size: 14px;
+  }
+  .lb-close,
+  .lb-nav {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    color: #f2f2f3;
+    background: rgb(255 255 255 / 0.08);
+    border: 1px solid rgb(255 255 255 / 0.14);
+    transition: background-color 0.2s;
+  }
+  .lb-close:hover,
+  .lb-nav:hover {
+    background: rgb(255 255 255 / 0.16);
+  }
+  .lb-close {
+    top: 12px;
+    right: 12px;
+  }
+  .lb-nav {
+    top: 50%;
+    translate: 0 -50%;
+  }
+  .prev {
+    left: 12px;
+  }
+  .next {
+    right: 12px;
+  }
+</style>

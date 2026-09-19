@@ -1,0 +1,29 @@
+---
+import { useUi, type Lang } from '../i18n/ui';
+import type { Status } from '../data/projects';
+
+interface Props {
+  status: Status;
+  lang: Lang;
+}
+const { status, lang } = Astro.props;
+const t = useUi(lang);
+---
+
+<span class:list={['status', 'mono', `status-${status}`]}>● {t.status[status]}</span>
+
+<style>
+  .status {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .status-prod { color: var(--ok); }
+  .status-beta { color: #b45309; }
+  .status-personal { color: #0f7a64; }
+  .status-done { color: var(--ink-3); }
+  :global(.night) .status-prod { color: #6fd59a; }
+  :global(.night) .status-beta { color: #f5c042; }
+  :global(.night) .status-personal { color: #7fd1b9; }
+  :global(.night) .status-done { color: #b8b3aa; }
+</style>

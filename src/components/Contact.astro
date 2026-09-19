@@ -1,0 +1,183 @@
+---
+import Icon from './Icon.astro';
+import { cvFile, useUi, type Lang } from '../i18n/ui';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useUi(lang);
+const s = t.sections.contact;
+const c = profile.contacts;
+const year = new Date().getFullYear();
+---
+
+<section id="contact" class="night sheet" aria-labelledby="contact-title">
+  <div class="wrap inner">
+    <div class="ring ring-1" aria-hidden="true"></div>
+    <div class="ring ring-2" aria-hidden="true"></div>
+
+    <div class="cols">
+      <div class="main reveal">
+        <p class="eyebrow">{s.eyebrow}</p>
+        <h2 id="contact-title" class="title display">{s.title}</h2>
+        <p class="lead">{s.lead}</p>
+        <a class="email mono link-ul" href={`mailto:${c.email}`}>{c.email}</a>
+        <div class="cta">
+          <a class="pill pill-accent" href={c.telegram.url}><Icon name="send" />{t.telegram}</a>
+          <button class="pill pill-ghost" type="button" data-copy={c.email} data-label={t.copy} data-done={t.copied}>
+            <Icon name="copy" />
+            <span data-copy-label>{t.copy}</span>
+          </button>
+        </div>
+      </div>
+
+      <ul class="links reveal">
+        <li><a href={c.telegram.url}><span>Telegram</span><b class="mono">{c.telegram.handle}</b></a></li>
+        <li><a href={`mailto:${c.email}`}><span>Email</span><b class="mono">{c.email}</b></a></li>
+        <li><a href={c.linkedin.url} rel="me"><span>LinkedIn</span><b class="mono">{c.linkedin.handle}</b></a></li>
+        <li><a href={c.github.url} rel="me"><span>GitHub</span><b class="mono">{c.github.handle}</b></a></li>
+        <li><a href={cvFile[lang]} download><span>{t.cv.split(',')[0]}</span><b class="mono">PDF · RU / EN</b></a></li>
+      </ul>
+    </div>
+
+    <footer class="foot mono">
+      <span>© {year} {t.footer.rights}</span>
+      <span>{t.footer.place}</span>
+    </footer>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    const label = btn.querySelector<HTMLElement>('[data-copy-label]');
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? '');
+        btn.dataset.state = 'done';
+        if (label) label.textContent = btn.dataset.done ?? '';
+        setTimeout(() => {
+          delete btn.dataset.state;
+          if (label) label.textContent = btn.dataset.label ?? '';
+        }, 1800);
+      } catch {
+        /* буфер недоступен — рядом остаётся ссылка mailto */
+      }
+    });
+  });
+</script>
+
+<style>
+  section {
+    position: relative;
+    overflow: hidden;
+  }
+  .inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    padding-block: clamp(56px, 7vw, 80px) 28px;
+  }
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgb(241 237 230 / 0.08);
+    pointer-events: none;
+  }
+  .ring-1 {
+    right: -120px;
+    top: -140px;
+    width: 520px;
+    height: 520px;
+  }
+  .ring-2 {
+    right: 40px;
+    top: 20px;
+    width: 200px;
+    height: 200px;
+  }
+  .cols {
+    position: relative;
+    display: grid;
+    gap: 40px;
+  }
+  .main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+  }
+  .title {
+    font-size: clamp(2.6rem, 1.6rem + 3.8vw, 5.25rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  .main .lead {
+    max-width: 52ch;
+    color: var(--night-muted);
+  }
+  .email {
+    font-size: clamp(1rem, 0.8rem + 1vw, 1.6rem);
+    color: var(--night-fg);
+    word-break: break-all;
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .pill[data-state='done'] {
+    border-color: #6fd59a;
+    color: #6fd59a;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    align-self: end;
+    border-top: 1px solid var(--night-line);
+  }
+  .links a {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--night-line);
+    transition: color 0.2s;
+  }
+  .links span {
+    color: var(--night-muted);
+  }
+  .links a:hover span {
+    color: var(--night-fg);
+  }
+  .links b {
+    font-weight: 500;
+    font-size: 14px;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    font-size: 12px;
+    color: var(--night-muted-2);
+  }
+
+  @media (min-width: 960px) {
+    .cols {
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 64px;
+      align-items: end;
+    }
+  }
+</style>

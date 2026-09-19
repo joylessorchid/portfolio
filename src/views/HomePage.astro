@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Explorer from '../components/Explorer.astro';
+import Services from '../components/Services.astro';
+import Experience from '../components/Experience.astro';
+import Stack from '../components/Stack.astro';
+import Contact from '../components/Contact.astro';
+import { profile } from '../data/profile';
+import { education } from '../data/experience';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const other: Lang = lang === 'ru' ? 'en' : 'ru';
+const c = profile.contacts;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name[lang],
+  alternateName: profile.name[other],
+  jobTitle: profile.role[lang],
+  description: profile.lead[lang],
+  url: new URL(lang === 'ru' ? '/' : '/en/', Astro.site).href,
+  image: new URL(`/og/og-${lang}.png`, Astro.site).href,
+  email: `mailto:${c.email}`,
+  address: { '@type': 'PostalAddress', addressLocality: lang === 'ru' ? 'Москва' : 'Moscow', addressCountry: 'RU' },
+  sameAs: [c.telegram.url, c.linkedin.url, c.github.url],
+  alumniOf: education.map((e) => ({ '@type': 'CollegeOrUniversity', name: e.org[lang] })),
+  knowsAbout: ['AI agents', 'LLM', 'Voice AI', 'DevOps', 'Docker', 'Proxmox', 'n8n', 'Telegram bots', 'E-commerce'],
+};
+---
+
+<Base lang={lang} title={`${profile.name[lang]} · ${profile.roleShort[lang]}`} description={profile.metaDescription[lang]} path="/" jsonLd={jsonLd}>
+  <Hero lang={lang} />
+  <Explorer lang={lang} />
+  <Services lang={lang} />
+  <Experience lang={lang} />
+  <Stack lang={lang} />
+  <Contact lang={lang} />
+</Base>

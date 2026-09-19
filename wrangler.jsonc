@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // имя должно совпадать с Worker'ом, к которому подключены Workers Builds
+  "name": "my-portfolio",
+  "compatibility_date": "2026-09-19",
+  // сайт полностью статический: воркер-скрипта нет, Cloudflare отдаёт dist/ как ассеты
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}

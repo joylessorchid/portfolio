@@ -1,0 +1,82 @@
+---
+import { Image } from 'astro:assets';
+import type { Shot } from '../data/projects';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  shot: Shot;
+  lang: Lang;
+  class?: string;
+  sizes?: string;
+  eager?: boolean;
+}
+
+const { shot, lang, class: className, sizes = '(min-width: 960px) 560px, 88vw', eager = false } = Astro.props;
+// ширины больше оригинала Astro сам заменяет на исходную — фильтровать не нужно
+const widths = [480, 720, 960, 1280, 1600];
+---
+
+<div class:list={['bframe', className]} data-shot-theme={shot.theme}>
+  <div class="bar" aria-hidden="true">
+    <i></i><i></i><i></i>
+    {shot.url && <span class="url">{shot.url}</span>}
+  </div>
+  <Image
+    src={shot.src}
+    alt={shot.alt[lang]}
+    widths={widths}
+    sizes={sizes}
+    quality={84}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : 'auto'}
+  />
+</div>
+
+<style>
+  .bframe {
+    --frame: #17171b;
+    --frame-ink: rgb(255 255 255 / 0.5);
+    --frame-dot: rgb(255 255 255 / 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--frame);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.14),
+      var(--shadow-lg);
+  }
+  .bframe[data-shot-theme='light'] {
+    --frame: #ffffff;
+    --frame-ink: rgb(17 17 19 / 0.5);
+    --frame-dot: rgb(17 17 19 / 0.16);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 10px;
+    border-bottom: 1px solid color-mix(in oklab, var(--frame-ink) 30%, transparent);
+  }
+  .bar i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--frame-dot);
+  }
+  .url {
+    margin-left: 8px;
+    padding: 1px 10px;
+    border-radius: 6px;
+    background: color-mix(in oklab, var(--frame-dot) 50%, transparent);
+    color: var(--frame-ink);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bframe :global(img) {
+    width: 100%;
+    height: auto;
+  }
+</style>

@@ -1,0 +1,83 @@
+---
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import { localePath, ogLocale, useUi, type Lang } from '../i18n/ui';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  /** Путь страницы без языкового префикса, например "/" или "/projects/gadgetpick/". */
+  path: string;
+  ogImage?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>;
+  /** Без шапки — для резюме и OG-страниц. */
+  bare?: boolean;
+  /** Есть ли у страницы версия на другом языке. */
+  alternates?: boolean;
+}
+
+const { lang, title, description, path, ogImage, noindex = false, jsonLd, bare = false, alternates = true } = Astro.props;
+const t = useUi(lang);
+const other: Lang = lang === 'ru' ? 'en' : 'ru';
+const site = Astro.site ?? new URL('https://v2horizon.com');
+const abs = (p: string) => new URL(p, site).href;
+const canonical = abs(localePath(lang, path));
+const og = abs(ogImage ?? `/og/og-${lang}.png`);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {
+      alternates && (
+        <>
+          <link rel="alternate" hreflang="ru" href={abs(localePath('ru', path))} />
+          <link rel="alternate" hreflang="en" href={abs(localePath('en', path))} />
+          <link rel="alternate" hreflang="x-default" href={abs(localePath('ru', path))} />
+        </>
+      )
+    }
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name[lang]} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={ogLocale[lang]} />
+    <meta property="og:locale:alternate" content={ogLocale[other]} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#f1ede6" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <Font cssVariable="--font-display" preload />
+    <Font cssVariable="--font-sans" preload />
+    <Font cssVariable="--font-mono" />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <slot name="head" />
+  </head>
+  <body>
+    {!bare && <a class="skip-link" href="#main">{t.skip}</a>}
+    {!bare && <Header lang={lang} path={path} />}
+    <main id="main">
+      <slot />
+    </main>
+  </body>
+</html>

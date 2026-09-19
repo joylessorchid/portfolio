@@ -1,0 +1,404 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import StageScene from '../components/StageScene.astro';
+import StatusPill from '../components/StatusPill.astro';
+import Gallery from '../components/Gallery.astro';
+import VoicePipeline from '../components/diagrams/VoicePipeline.astro';
+import DiagnosticFlow from '../components/diagrams/DiagnosticFlow.astro';
+import HomelabMap from '../components/diagrams/HomelabMap.astro';
+import { projects, type Project } from '../data/projects';
+import { profile } from '../data/profile';
+import { localePath, useUi, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  project: Project;
+}
+const { lang, project: p } = Astro.props;
+const t = useUi(lang);
+const path = `/projects/${p.slug}/`;
+const idx = projects.findIndex((x) => x.slug === p.slug);
+const next = projects[(idx + 1) % projects.length];
+const num = (i: number) => String(i + 1).padStart(2, '0');
+const title = `${p.title[lang]} · ${profile.name[lang]}`;
+const year = new Date().getFullYear();
+---
+
+<Base lang={lang} title={title} description={p.summary[lang]} path={path}>
+  <article class:list={['case', `tint-${p.tint}`]}>
+    <header class="wrap top">
+      <a class="back rise" href={`${localePath(lang, '/')}#projects`}><Icon name="arrow-left" size={18} />{t.project.back}</a>
+      <p class="meta mono rise rise-1">
+        <span class="accent">{t.project.label} {num(idx)}</span>
+        <StatusPill status={p.status} lang={lang} />
+        <span>{p.period[lang]}</span>
+      </p>
+      <h1 class="title display rise rise-1">{p.title[lang]}</h1>
+      <p class="tagline rise rise-2">{p.tagline[lang]}</p>
+      <dl class="facts rise rise-3">
+        <div>
+          <dt class="mono">{t.project.role}</dt>
+          <dd>{p.role[lang]}</dd>
+        </div>
+        <div>
+          <dt class="mono">{t.project.period}</dt>
+          <dd>{p.period[lang]}</dd>
+        </div>
+        <div>
+          <dt class="mono">{t.project.stack}</dt>
+          <dd>{p.stack.join(' · ')}</dd>
+        </div>
+        {
+          p.link && (
+            <div>
+              <dt class="mono">{t.project.link}</dt>
+              <dd>
+                <a class="link-ul" href={p.link.href} target="_blank" rel="noopener">
+                  {p.link.label} ↗
+                </a>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+    </header>
+
+    <div class="wrap">
+      <div class="stage rise rise-2">
+        <div class="glow" aria-hidden="true"></div>
+        <StageScene project={p} lang={lang} variant="hero" eager />
+      </div>
+    </div>
+
+    <div class="wrap body">
+      <aside class="side">
+        <p class="summary">{p.summary[lang]}</p>
+        {p.note && <p class="note mono">{p.note[lang]}</p>}
+        <ul class="tags">
+          {p.stack.map((s) => <li class="tag">{s}</li>)}
+        </ul>
+      </aside>
+
+      <div class="content">
+        {
+          p.sections.map((sec) => (
+            <section class="sec reveal">
+              <h2 class="h-sub">{sec.title[lang]}</h2>
+              {sec.diagram && (
+                <div class="diagram">
+                  {sec.diagram === 'voice' && <VoicePipeline lang={lang} />}
+                  {sec.diagram === 'diagnostic' && <DiagnosticFlow lang={lang} />}
+                  {sec.diagram === 'homelab' && <HomelabMap lang={lang} />}
+                </div>
+              )}
+              {sec.text && <p>{sec.text[lang]}</p>}
+              {sec.list && (
+                <ul class="list">
+                  {sec.list[lang].map((li) => (
+                    <li>{li}</li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          ))
+        }
+      </div>
+    </div>
+
+    {
+      p.gallery.length > 0 && (
+        <section class="wrap shots" aria-labelledby="shots-title">
+          <header class="shots-head reveal">
+            <h2 id="shots-title" class="h-sub">{t.project.screens}</h2>
+            <span class="mono count">{p.gallery.length}</span>
+          </header>
+          <Gallery shots={p.gallery} lang={lang} />
+        </section>
+      )
+    }
+
+    <div class="wrap bottom">
+      <a class:list={['next', 'night', 'reveal', `tint-${next.tint}`]} href={localePath(lang, `/projects/${next.slug}/`)} data-astro-prefetch>
+        <div class="next-text">
+          <span class="eyebrow">{t.project.next} · {num((idx + 1) % projects.length)}</span>
+          <span class="next-title display">{next.title[lang]}</span>
+          <span class="next-sub">{next.tagline[lang]}</span>
+          <span class="next-cta">{t.details}<Icon name="arrow-right" size={20} /></span>
+        </div>
+        <div class="next-scene">
+          <StageScene project={next} lang={lang} variant="card" />
+        </div>
+      </a>
+      <footer class="foot mono">
+        <span>© {year} {t.footer.rights}</span>
+        <a class="link-ul" href={localePath(lang, '/')}>{t.footer.place}</a>
+      </footer>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+    padding-block: clamp(24px, 3vw, 40px) clamp(28px, 3vw, 40px);
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-2);
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .back :global(svg) {
+    transition: transform 0.3s var(--ease);
+  }
+  .back:hover {
+    color: var(--ink);
+  }
+  .back:hover :global(svg) {
+    transform: translateX(-4px);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .accent {
+    color: var(--accent);
+  }
+  .title {
+    font-size: clamp(3rem, 1.6rem + 6.4vw, 8.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  .tagline {
+    max-width: 820px;
+    font-size: clamp(1.2rem, 1rem + 0.9vw, 1.75rem);
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    color: var(--ink-2);
+    text-wrap: balance;
+  }
+  .facts {
+    display: grid;
+    gap: 20px 32px;
+    width: 100%;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .facts div {
+    display: grid;
+    gap: 6px;
+  }
+  dt {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  dd {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .stage {
+    position: relative;
+    aspect-ratio: 2.2 / 1;
+    min-height: 240px;
+    container: stage / size;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--tint);
+    view-transition-name: case-hero;
+  }
+  .glow {
+    position: absolute;
+    left: -10%;
+    top: -30%;
+    width: 60%;
+    height: 90%;
+    border-radius: 50%;
+    background: var(--tint-glow);
+    opacity: 0.35;
+    filter: blur(120px);
+    pointer-events: none;
+  }
+
+  .body {
+    display: grid;
+    gap: 40px;
+    padding-block: clamp(48px, 6vw, 80px) clamp(40px, 5vw, 72px);
+  }
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .summary {
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.375rem);
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-wrap: pretty;
+  }
+  .note {
+    align-self: flex-start;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #b45309;
+    background: color-mix(in oklab, #b45309 12%, transparent);
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(36px, 4vw, 56px);
+    min-width: 0;
+  }
+  .sec {
+    display: grid;
+    gap: 16px;
+  }
+  .sec p {
+    max-width: 70ch;
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+  .list {
+    display: grid;
+    gap: 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .list li {
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+  }
+  .diagram {
+    --tint: var(--tint-soft);
+    padding: clamp(14px, 2.5vw, 24px);
+    border-radius: var(--radius-lg);
+    background: color-mix(in oklab, var(--tint-soft) 45%, var(--paper));
+    border: 1px solid var(--line);
+  }
+
+  .shots {
+    display: grid;
+    gap: 20px;
+    padding-bottom: clamp(48px, 6vw, 72px);
+  }
+  .shots-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .count {
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+
+  .bottom {
+    display: grid;
+    gap: 32px;
+    padding-bottom: 32px;
+  }
+  .next {
+    display: grid;
+    gap: 28px;
+    padding: clamp(24px, 4vw, 48px) clamp(24px, 4vw, 56px);
+    border-radius: var(--radius-lg);
+    transition: transform 0.5s var(--ease), box-shadow 0.5s;
+  }
+  .next:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.6);
+  }
+  .next-text {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .next-title {
+    font-size: clamp(2.2rem, 1.5rem + 3vw, 4.5rem);
+    line-height: 0.95;
+  }
+  .next-sub {
+    font-size: 18px;
+    color: #b8b3aa;
+  }
+  .next-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    font-weight: 600;
+    transition: transform 0.4s var(--ease);
+  }
+  .next:hover .next-cta {
+    transform: translateX(10px);
+  }
+  .next-scene {
+    position: relative;
+    height: 220px;
+    container: stage / size;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--tint);
+    border: 1px solid rgb(241 237 230 / 0.08);
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .foot a {
+    color: var(--ink-2);
+  }
+
+  @media (min-width: 720px) {
+    .facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 960px) {
+    .facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .next {
+      grid-template-columns: minmax(0, 1fr) 420px;
+      align-items: center;
+      gap: 48px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .body {
+      grid-template-columns: 340px minmax(0, 1fr);
+      gap: 80px;
+    }
+    .side {
+      position: sticky;
+      top: calc(var(--header-h) + 24px);
+      align-self: start;
+    }
+  }
+</style>
