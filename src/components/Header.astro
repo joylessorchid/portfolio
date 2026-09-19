@@ -22,7 +22,7 @@ const links = [
 
 <header class="site-header" data-header>
   <div class="wrap bar">
-    <a class="brand display" href={home}>{profile.shortName[lang]}</a>
+    <a class="brand display" href={home}>{profile.name[lang]}</a>
 
     <nav class="nav" aria-label={t.menu}>
       {links.map((l) => <a href={l.href}>{l.label}</a>)}
@@ -54,6 +54,31 @@ const links = [
 </header>
 
 <script>
+  // Подсветка пункта меню: раздел, пересекающий тонкую полосу чуть выше центра экрана, считается текущим.
+  // «Стек» идёт сразу после «Опыта», поэтому подсвечивает тот же пункт.
+  (() => {
+    const links = new Map<string, HTMLAnchorElement>();
+    document.querySelectorAll<HTMLAnchorElement>('.nav a').forEach((a) => links.set(new URL(a.href).hash.slice(1), a));
+    const groups: Record<string, string> = { projects: 'projects', services: 'services', experience: 'experience', stack: 'experience', contact: 'contact' };
+    const sections = Object.keys(groups)
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    const hero = document.querySelector<HTMLElement>('.hero');
+    if (!sections.length || !links.size) return;
+    const setActive = (id: string | null) =>
+      links.forEach((a, key) => (key === id ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          setActive(e.target === hero ? null : groups[e.target.id] ?? null);
+        }),
+      { rootMargin: '-40% 0px -59% 0px' },
+    );
+    sections.forEach((s) => io.observe(s));
+    if (hero) io.observe(hero);
+  })();
+
   const header = document.querySelector<HTMLElement>('[data-header]');
   const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const panel = header?.querySelector<HTMLElement>('[data-mobile-nav]');
@@ -67,7 +92,7 @@ const links = [
     toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
     panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
     document.addEventListener('keydown', (e) => e.key === 'Escape' && setOpen(false));
-    matchMedia('(min-width: 960px)').addEventListener('change', (e) => e.matches && setOpen(false));
+    matchMedia('(min-width: 1120px)').addEventListener('change', (e) => e.matches && setOpen(false));
   }
 </script>
 
@@ -90,7 +115,8 @@ const links = [
     gap: 16px;
   }
   .brand {
-    font-size: 22px;
+    /* на узких телефонах (320–400px) полное имя сжимается, чтобы влезали язык и бургер */
+    font-size: clamp(17px, 5.4vw, 22px);
     white-space: nowrap;
   }
   .nav {
@@ -100,22 +126,43 @@ const links = [
     font-weight: 500;
   }
   .nav a {
+    position: relative;
     color: var(--ink-2);
     transition: color 0.2s;
+  }
+  .nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -7px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s var(--ease);
   }
   .nav a:hover {
     color: var(--ink);
   }
+  .nav a[aria-current='location'] {
+    color: var(--ink);
+  }
+  .nav a[aria-current='location']::after {
+    transform: scaleX(1);
+  }
   .actions {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
     justify-self: end;
   }
   .lang {
     font-size: 13px;
     color: var(--ink-3);
     letter-spacing: 0.02em;
+    white-space: nowrap;
   }
   .lang .on {
     color: var(--ink);
@@ -125,6 +172,7 @@ const links = [
     display: none;
     font-size: 15px;
     font-weight: 600;
+    white-space: nowrap;
   }
   .tg {
     display: none;
@@ -173,13 +221,18 @@ const links = [
     margin-top: 28px;
   }
 
-  @media (min-width: 560px) {
+  @media (min-width: 400px) {
+    .actions {
+      gap: 20px;
+    }
+  }
+  @media (min-width: 760px) {
     .cv,
     .tg {
       display: inline-flex;
     }
   }
-  @media (min-width: 960px) {
+  @media (min-width: 1120px) {
     .bar {
       grid-template-columns: 1fr auto 1fr;
     }

@@ -2,7 +2,6 @@ import type { L10n } from '../i18n/ui';
 
 export const profile = {
   name: { ru: 'Николай Скориков', en: 'Nikolay Skorikov' } satisfies L10n,
-  shortName: { ru: 'Н. Скориков', en: 'N. Skorikov' } satisfies L10n,
   firstName: { ru: 'Николай', en: 'Nikolay' } satisfies L10n,
   lastName: { ru: 'Скориков', en: 'Skorikov' } satisfies L10n,
   role: {
@@ -40,8 +39,8 @@ export const profile = {
   ] satisfies { value: L10n; label: L10n }[],
 
   marquee: {
-    ru: ['VoiceManager — голосовой AI-агент', 'GadgetPick — магазин с нуля', 'Расписание МПГУ — 3 300+ студентов', 'n8n-пайплайны', 'Homelab на Proxmox', 'Asterisk на 40 операторов'],
-    en: ['VoiceManager — voice AI agent', 'GadgetPick — a store from scratch', 'MPGU Schedule — 3,300+ students', 'n8n pipelines', 'Proxmox homelab', 'Asterisk for 40 agents'],
+    ru: ['VoiceManager — голосовой AI-агент', 'GadgetPick — магазин с нуля', 'Бот с расписанием — 3 300+ студентов', 'n8n-пайплайны', 'Homelab на Proxmox', 'Asterisk на 40 операторов'],
+    en: ['VoiceManager — voice AI agent', 'GadgetPick — a store from scratch', 'Schedule bot — 3,300+ students', 'n8n pipelines', 'Proxmox homelab', 'Asterisk for 40 agents'],
   } satisfies L10n<string[]>,
 
   now: {

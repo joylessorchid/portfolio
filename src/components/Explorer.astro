@@ -16,7 +16,7 @@ const featured = projects.filter((p) => p.featured);
 const rest = projects.filter((p) => !p.featured);
 ---
 
-<section id="projects" class="night sheet" aria-labelledby="projects-title">
+<section id="projects" class="night sheet snap" aria-labelledby="projects-title">
   <div class="wrap">
     <header class="head reveal">
       <h2 id="projects-title" class="h-section">{s.title}</h2>
@@ -79,7 +79,7 @@ const rest = projects.filter((p) => !p.featured);
     <div class="cards">
       {
         featured.map((p, i) => (
-          <a class:list={['card', `tint-${p.tint}`, 'reveal']} href={caseUrl(p.slug)} data-astro-prefetch>
+          <a class:list={['card', `tint-${p.tint}`, 'focus-soft']} href={caseUrl(p.slug)} data-astro-prefetch>
             <div class:list={['card-scene', `kind-${p.cover.kind}`]}>
               <StageScene project={p} lang={lang} variant="card" />
             </div>
