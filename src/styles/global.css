@@ -9,25 +9,27 @@
   --paper-3: #fbf9f5;
   --ink: #121110;
   --ink-2: #4e4a44;
-  --ink-3: #7a756d;
+  --ink-3: #66615a; /* 5.3:1 на бумаге (было 3.9) */
   --line: rgb(18 17 16 / 0.14);
   --line-2: rgb(18 17 16 / 0.3);
   --accent: #e8552b;
+  --accent-ink: #b83b0b; /* акцент для мелкого текста на бумаге: 4.9:1 */
   --ok: #1e8e4e;
+  --ok-ink: #15703c; /* зелёный для текста на бумаге: 5.3:1 */
 
   --night: #0f0e0d;
   --night-2: #17161a;
   --night-fg: #f1ede6;
   --night-fg-2: #d9d4cb;
   --night-muted: #9a958d;
-  --night-muted-2: #7a756d;
+  --night-muted-2: #8f8a82; /* 5.6:1 на тёмном (было 4.2) */
   --night-line: rgb(241 237 230 / 0.12);
 
   /* псевдонимы для компонентов, написанных под прежние имена токенов */
   --bg: var(--paper);
   --bg-elev: #ffffff;
   --bg-sunk: var(--paper-2);
-  --warn: #b45309;
+  --warn: #92400e;
   --info: #5b4bd6;
   --tint-2: var(--tint-soft);
   --shadow-md: 0 1px 2px rgb(18 17 16 / 0.05), 0 14px 34px -14px rgb(18 17 16 / 0.2);
@@ -261,13 +263,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   }
 }
 
-/* Мягкое примагничивание разделов (proximity: срабатывает только рядом с началом раздела) */
-/* scroll-padding-top оставляет место под шапку + 16px; -16px ставит верх раздела ровно под шапкой */
-.snap { scroll-margin-top: -16px; }
-@media (min-width: 960px) and (prefers-reduced-motion: no-preference) {
-  html { scroll-snap-type: y proximity; }
-  .snap { scroll-snap-align: start; }
-}
+/* Переход по якорю: scroll-padding-top оставляет место под шапку + 16px, а -16px ставит
+   раздел (у него свой верхний отступ) ровно под шапку. Пошаговая прокрутка — ScrollStepper. */
+main > section[id] { scroll-margin-top: -16px; }
 
 /* Наплывание: уходящий блок замедляется, уменьшается и гаснет (.recede),
    а следующий тёмный «лист» со скруглёнными углами наезжает поверх него (.sheet). */

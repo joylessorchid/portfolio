@@ -6,6 +6,7 @@ import Services from '../components/Services.astro';
 import Experience from '../components/Experience.astro';
 import Stack from '../components/Stack.astro';
 import Contact from '../components/Contact.astro';
+import ScrollStepper from '../components/ScrollStepper.astro';
 import { profile } from '../data/profile';
 import { education } from '../data/experience';
 import type { Lang } from '../i18n/ui';
@@ -41,4 +42,5 @@ const jsonLd = {
   <Experience lang={lang} />
   <Stack lang={lang} />
   <Contact lang={lang} />
+  <ScrollStepper />
 </Base>

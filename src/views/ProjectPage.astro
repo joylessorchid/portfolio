@@ -65,7 +65,7 @@ const year = new Date().getFullYear();
     </header>
 
     <div class="wrap">
-      <div class="stage rise rise-2">
+      <div class="stage" data-case-stage>
         <div class="glow" aria-hidden="true"></div>
         <StageScene project={p} lang={lang} variant="hero" eager />
       </div>
@@ -119,14 +119,14 @@ const year = new Date().getFullYear();
     }
 
     <div class="wrap bottom">
-      <a class:list={['next', 'night', 'reveal', `tint-${next.tint}`]} href={localePath(lang, `/projects/${next.slug}/`)} data-astro-prefetch>
+      <a class:list={['next', 'night', 'reveal', `tint-${next.tint}`]} href={localePath(lang, `/projects/${next.slug}/`)} data-astro-prefetch data-next>
         <div class="next-text">
           <span class="eyebrow">{t.project.next} · {num((idx + 1) % projects.length)}</span>
           <span class="next-title display">{next.title[lang]}</span>
           <span class="next-sub">{next.tagline[lang]}</span>
           <span class="next-cta">{t.details}<Icon name="arrow-right" size={20} /></span>
         </div>
-        <div class="next-scene">
+        <div class="next-scene" data-next-scene>
           <StageScene project={next} lang={lang} variant="card" />
         </div>
       </a>
@@ -137,6 +137,30 @@ const year = new Date().getFullYear();
     </div>
   </article>
 </Base>
+
+<script>
+  // Переход между кейсами: картинка из карточки «Следующий кейс» перетекает в шапку нового кейса.
+  // Шапке текущего кейса имя перехода нужно только когда она видна — иначе она «прилетала» бы из-за края экрана.
+  const stage = document.querySelector<HTMLElement>('[data-case-stage]');
+  const nextLink = document.querySelector<HTMLAnchorElement>('[data-next]');
+  const nextScene = document.querySelector<HTMLElement>('[data-next-scene]');
+  const inView = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return r.bottom > 0 && r.top < innerHeight;
+  };
+  nextLink?.addEventListener('click', () => {
+    if (stage) stage.style.viewTransitionName = 'none';
+    if (nextScene) nextScene.style.viewTransitionName = 'case-hero';
+  });
+  addEventListener('pageswap', () => {
+    if (stage && !inView(stage)) stage.style.viewTransitionName = 'none';
+  });
+  addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    if (stage) stage.style.viewTransitionName = '';
+    if (nextScene) nextScene.style.viewTransitionName = '';
+  });
+</script>
 
 <style>
   .top {
@@ -175,13 +199,14 @@ const year = new Date().getFullYear();
     color: var(--ink-2);
   }
   .accent {
-    color: var(--accent);
+    color: var(--accent-ink);
   }
   .title {
-    font-size: clamp(3rem, 1.6rem + 6.4vw, 8.5rem);
+    font-size: clamp(2.4rem, 1.4rem + 6.4vw, 8.5rem);
     line-height: 0.92;
     letter-spacing: -0.03em;
     text-wrap: balance;
+    overflow-wrap: anywhere;
   }
   .tagline {
     max-width: 820px;
@@ -214,15 +239,26 @@ const year = new Date().getFullYear();
     line-height: 1.45;
   }
 
+  /* Пропорции по ширине экрана. Без min-height: вместе с aspect-ratio он переносится
+     в минимальную ширину и растягивает страницу вбок на телефонах. */
   .stage {
     position: relative;
-    aspect-ratio: 2.2 / 1;
-    min-height: 240px;
+    aspect-ratio: 4 / 3;
     container: stage / size;
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: var(--tint);
     view-transition-name: case-hero;
+  }
+  @media (min-width: 640px) {
+    .stage {
+      aspect-ratio: 16 / 9;
+    }
+  }
+  @media (min-width: 960px) {
+    .stage {
+      aspect-ratio: 2.2 / 1;
+    }
   }
   .glow {
     position: absolute;
@@ -261,8 +297,8 @@ const year = new Date().getFullYear();
     font-size: 12px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #b45309;
-    background: color-mix(in oklab, #b45309 12%, transparent);
+    color: var(--warn);
+    background: color-mix(in oklab, var(--warn) 12%, transparent);
   }
   .content {
     display: flex;
@@ -292,6 +328,7 @@ const year = new Date().getFullYear();
     border-top: 1px solid var(--line);
   }
   .diagram {
+    container-type: inline-size;
     --tint: var(--tint-soft);
     padding: clamp(14px, 2.5vw, 24px);
     border-radius: var(--radius-lg);
