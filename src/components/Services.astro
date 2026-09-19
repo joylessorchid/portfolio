@@ -1,0 +1,127 @@
+---
+import Icon from './Icon.astro';
+import { services } from '../data/services';
+import { getProject } from '../data/projects';
+import { localePath, useUi, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useUi(lang);
+const s = t.sections.services;
+---
+
+<section id="services" class="wrap section" aria-labelledby="services-title">
+  <header class="head reveal">
+    <h2 id="services-title" class="h-section">{s.title}</h2>
+    <p class="lead">{s.lead}</p>
+  </header>
+  <div class="rows">
+    {
+      services.map((svc, i) => {
+        const proof = svc.proof.map((slug) => getProject(slug)).filter(Boolean);
+        const href = localePath(lang, `/projects/${svc.proof[0]}/`);
+        return (
+          <a class="row reveal" href={href} data-astro-prefetch>
+            <span class="num mono">{String(i + 1).padStart(2, '0')}</span>
+            <span class="title display">{svc.title[lang]}</span>
+            <span class="text">
+              {svc.text[lang]}
+              <span class="proof mono">
+                {t.examples}: {proof.map((p) => p!.title[lang]).join(', ')}
+              </span>
+            </span>
+            <Icon name="arrow-up-right" size={30} class="arrow" />
+          </a>
+        );
+      })
+    }
+  </div>
+</section>
+
+<style>
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px 24px;
+    margin-bottom: 24px;
+  }
+  .head .lead {
+    max-width: 380px;
+    font-size: 16px;
+  }
+  .rows {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--line);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 8px 16px;
+    padding: 26px 0;
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.3s;
+  }
+  .num {
+    font-size: 13px;
+    color: var(--ink-3);
+    padding-top: 6px;
+  }
+  .title {
+    font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    transition: color 0.3s;
+  }
+  .row:hover .title {
+    color: var(--accent);
+  }
+  .text {
+    grid-column: 2;
+    display: grid;
+    gap: 8px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .proof {
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .row :global(.arrow) {
+    display: none;
+    opacity: 0.35;
+    transition: opacity 0.3s, transform 0.4s var(--ease);
+  }
+  .row:hover :global(.arrow) {
+    opacity: 1;
+    transform: translate(6px, -6px);
+  }
+
+  @media (min-width: 900px) {
+    .row {
+      grid-template-columns: 64px minmax(0, 1fr) 360px 48px;
+      align-items: center;
+      gap: 24px;
+      padding: 30px 20px;
+      margin: 0 -20px;
+      border-radius: 14px;
+    }
+    .row:hover {
+      background: var(--paper-3);
+    }
+    .num {
+      padding-top: 0;
+    }
+    .text {
+      grid-column: auto;
+    }
+    .row :global(.arrow) {
+      display: block;
+    }
+  }
+</style>

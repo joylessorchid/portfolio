@@ -1,0 +1,56 @@
+---
+import { skills, skillLabel } from '../data/skills';
+import { useUi, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useUi(lang);
+---
+
+<section id="stack" class="wrap section recede" aria-labelledby="stack-title">
+  <header class="head reveal">
+    <h2 id="stack-title" class="h-section">{t.sections.stack.title}</h2>
+  </header>
+  <div class="groups">
+    {
+      skills.map((g) => (
+        <div class="group reveal">
+          <h3>{g.title[lang]}</h3>
+          <ul class="tags">
+            {g.items.map((i) => (
+              <li class="tag">{skillLabel(i, lang)}</li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  section {
+    border-top: 1px solid var(--line);
+  }
+  .head {
+    margin-bottom: 24px;
+  }
+  .groups {
+    display: grid;
+    gap: 0 32px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .group {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding: 20px 0 24px;
+    border-top: 1px solid var(--line);
+  }
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+</style>

@@ -1,0 +1,224 @@
+---
+import Icon from '../Icon.astro';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Компактный вариант — для обложки карточки проекта. */
+  compact?: boolean;
+}
+const { lang, compact = false } = Astro.props;
+
+const steps = [
+  {
+    label: { ru: 'Источники', en: 'Sources' },
+    title: { ru: 'Сканы, анализы, заключения', en: 'Scans, labs, reports' },
+    meta: { ru: '15 лет истории', en: '15 years of history' },
+  },
+  {
+    label: { ru: 'Верификация', en: 'Verification' },
+    title: { ru: 'История с provenance до скана', en: 'History with provenance to the scan' },
+    meta: { ru: 'каждый факт → документ', en: 'every fact → a document' },
+  },
+  {
+    label: { ru: 'Анализ', en: 'Reasoning' },
+    title: { ru: 'Дифференциальный ряд и недостающие данные', en: 'Differential diagnosis and missing data' },
+  },
+  {
+    label: { ru: 'План', en: 'Plan' },
+    title: { ru: 'Обследование и предварительное лечение', en: 'Examination and preliminary treatment' },
+    badge: { ru: 'Требует одобрения врача', en: 'Requires physician approval' },
+  },
+];
+---
+
+<ol class:list={['flow', compact ? 'compact' : 'full']}>
+  {
+    steps.map((s, i) => (
+      <li class="step">
+        <p class="label">
+          <span>{String(i + 1).padStart(2, '0')}</span>
+          {s.label[lang]}
+        </p>
+        <p class="title">{s.title[lang]}</p>
+        {s.meta && <p class="meta">{s.meta[lang]}</p>}
+        {s.badge && (
+          <p class="badge">
+            <Icon name="check" size={14} />
+            {s.badge[lang]}
+          </p>
+        )}
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .flow {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .step {
+    position: relative;
+    display: grid;
+    gap: 4px;
+    padding: 14px 16px 16px;
+    border-radius: 16px;
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-md);
+  }
+  .label {
+    display: flex;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .label span {
+    color: var(--tint-ink, var(--accent));
+  }
+  .title {
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-3);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-self: start;
+    margin-top: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--warn);
+    background: color-mix(in oklab, var(--warn) 14%, transparent);
+    border: 1px solid color-mix(in oklab, var(--warn) 30%, transparent);
+  }
+
+  /* связи между шагами */
+  .step + .step::before {
+    content: '';
+    position: absolute;
+    left: 28px;
+    top: -13px;
+    width: 1px;
+    height: 12px;
+    background: var(--tint-ink, var(--line-2));
+    opacity: 0.6;
+  }
+
+  /* на тёмной сцене витрины карточки полупрозрачные */
+  :global(.night) .step {
+    background: rgb(241 237 230 / 0.06);
+    border-color: rgb(241 237 230 / 0.1);
+    box-shadow: none;
+    color: var(--night-fg);
+  }
+  :global(.night) .label {
+    color: var(--night-muted);
+  }
+  :global(.night) .label span {
+    color: #7fd1b9;
+  }
+  :global(.night) .meta {
+    color: var(--night-muted-2);
+  }
+  :global(.night) .badge {
+    color: #f5c042;
+    background: transparent;
+    border-color: rgb(245 192 66 / 0.4);
+  }
+  :global(.night) .step + .step::before {
+    background: rgb(127 209 185 / 0.5);
+  }
+
+  /* Компактный вариант на сцене: лесенка на высоких сценах, сетка 2×2 на низких */
+  .compact {
+    position: absolute;
+    inset: 0;
+    align-content: safe center;
+    padding: 5% 8%;
+    gap: 8px;
+  }
+  .compact .step {
+    padding: 12px 16px 13px;
+  }
+  .compact .step:nth-child(2) { margin-left: 5%; }
+  .compact .step:nth-child(3) { margin-left: 10%; }
+  .compact .step:nth-child(4) { margin-left: 15%; }
+  .compact .step + .step::before { left: calc(28px - 5%); }
+
+  @container stage (max-height: 359px) {
+    .compact {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding: 4% 6%;
+    }
+    .compact .step:nth-child(2),
+    .compact .step:nth-child(3),
+    .compact .step:nth-child(4) {
+      margin-left: 0;
+    }
+    .compact .step + .step::before {
+      display: none;
+    }
+    .compact .meta {
+      display: none;
+    }
+  }
+  /* узкая карточка на телефоне: короче заголовки, без бейджа — он есть на странице кейса */
+  @container stage (max-width: 420px) {
+    .compact .title {
+      font-size: 12px;
+    }
+    .compact .badge {
+      display: none;
+    }
+  }
+  @container stage (max-height: 239px) {
+    .compact {
+      gap: 6px;
+    }
+    .compact .step {
+      padding: 9px 12px 10px;
+      border-radius: 12px;
+    }
+    .compact .title {
+      font-size: 13px;
+    }
+    .compact .label {
+      font-size: 10px;
+    }
+    .compact .badge {
+      margin-top: 4px;
+      font-size: 11px;
+      padding: 2px 8px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .full {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .full .step + .step::before {
+      left: -17px;
+      top: 50%;
+      width: 16px;
+      height: 1px;
+    }
+  }
+</style>

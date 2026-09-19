@@ -1,0 +1,14 @@
+---
+import ProjectPage from '../../../views/ProjectPage.astro';
+import { getProject, projects } from '../../../data/projects';
+
+// В props отдаём только slug: если передать весь объект проекта с картинками,
+// Astro сочтёт оригиналы скриншотов использованными и скопирует их в dist.
+export function getStaticPaths() {
+  return projects.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const project = getProject(Astro.params.slug!)!;
+---
+
+<ProjectPage lang="en" project={project} />

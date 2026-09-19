@@ -1,0 +1,194 @@
+---
+import Icon from './Icon.astro';
+import { cvFile, localePath, useUi, type Lang } from '../i18n/ui';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+  path: string;
+}
+
+const { lang, path } = Astro.props;
+const t = useUi(lang);
+const other: Lang = lang === 'ru' ? 'en' : 'ru';
+const home = localePath(lang, '/');
+const links = [
+  { href: `${home}#projects`, label: t.nav.projects },
+  { href: `${home}#services`, label: t.nav.services },
+  { href: `${home}#experience`, label: t.nav.experience },
+  { href: `${home}#contact`, label: t.nav.contact },
+];
+---
+
+<header class="site-header" data-header>
+  <div class="wrap bar">
+    <a class="brand display" href={home}>{profile.shortName[lang]}</a>
+
+    <nav class="nav" aria-label={t.menu}>
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+
+    <div class="actions">
+      <a class="lang mono" href={localePath(other, path)} hreflang={other} lang={other} title={t.langSwitch} aria-label={t.langSwitch}>
+        <span class:list={{ on: lang === 'ru' }}>RU</span> / <span class:list={{ on: lang === 'en' }}>EN</span>
+      </a>
+      <a class="cv link-ul" href={cvFile[lang]} download>{t.cv}</a>
+      <a class="pill pill-ink pill-sm tg" href={profile.contacts.telegram.url}>{t.telegram}</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav" data-menu-toggle>
+        <Icon name="menu" class="i-menu" />
+        <Icon name="x" class="i-x" />
+        <span class="visually-hidden">{t.menu}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-nav" id="mobile-nav" data-mobile-nav hidden>
+    <nav class="wrap" aria-label={t.menu}>
+      {links.map((l) => <a class="m-link display" href={l.href}>{l.label}</a>)}
+      <div class="m-actions">
+        <a class="pill pill-ink" href={profile.contacts.telegram.url}>{t.telegram}</a>
+        <a class="pill pill-line" href={cvFile[lang]} download><Icon name="download" />{t.cv}</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const panel = header?.querySelector<HTMLElement>('[data-mobile-nav]');
+  if (header && toggle && panel) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
+      header.toggleAttribute('data-open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    };
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && setOpen(false));
+    matchMedia('(min-width: 960px)').addEventListener('change', (e) => e.matches && setOpen(false));
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in oklab, var(--paper) 86%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid var(--line);
+    view-transition-name: site-header;
+  }
+  .bar {
+    height: var(--header-h);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 16px;
+  }
+  .brand {
+    font-size: 22px;
+    white-space: nowrap;
+  }
+  .nav {
+    display: none;
+    gap: 36px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .nav a {
+    color: var(--ink-2);
+    transition: color 0.2s;
+  }
+  .nav a:hover {
+    color: var(--ink);
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    justify-self: end;
+  }
+  .lang {
+    font-size: 13px;
+    color: var(--ink-3);
+    letter-spacing: 0.02em;
+  }
+  .lang .on {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .cv {
+    display: none;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .tg {
+    display: none;
+  }
+  .menu-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid var(--line-2);
+  }
+  .menu-btn :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+  .menu-btn :global(.i-x) {
+    display: none;
+  }
+  .site-header[data-open] .menu-btn :global(.i-menu) {
+    display: none;
+  }
+  .site-header[data-open] .menu-btn :global(.i-x) {
+    display: block;
+  }
+
+  .mobile-nav {
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    background: var(--paper);
+    overflow-y: auto;
+    padding-block: 20px 40px;
+  }
+  .mobile-nav nav {
+    display: flex;
+    flex-direction: column;
+  }
+  .m-link {
+    padding: 16px 0;
+    font-size: 34px;
+    border-bottom: 1px solid var(--line);
+  }
+  .m-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  @media (min-width: 560px) {
+    .cv,
+    .tg {
+      display: inline-flex;
+    }
+  }
+  @media (min-width: 960px) {
+    .bar {
+      grid-template-columns: 1fr auto 1fr;
+    }
+    .nav {
+      display: flex;
+    }
+    .menu-btn,
+    .mobile-nav {
+      display: none;
+    }
+  }
+</style>

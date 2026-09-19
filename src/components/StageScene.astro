@@ -1,0 +1,143 @@
+---
+import BrowserFrame from './BrowserFrame.astro';
+import PhoneFrame from './PhoneFrame.astro';
+import DiagnosticFlow from './diagrams/DiagnosticFlow.astro';
+import type { Project } from '../data/projects';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+  /** explorer — витрина на главной, hero — шапка кейса, card — карточка на телефоне */
+  variant: 'explorer' | 'hero' | 'card';
+  eager?: boolean;
+}
+
+const { project: p, lang, variant, eager = false } = Astro.props;
+const c = p.cover;
+const frameSizes = { explorer: '(min-width: 960px) 680px, 90vw', hero: '(min-width: 1200px) 1040px, 90vw', card: '560px' }[variant];
+const phoneSizes = { explorer: '(min-width: 960px) 214px, 30vw', hero: '(min-width: 1200px) 260px, 28vw', card: '112px' }[variant];
+---
+
+<div class:list={['scene', `scene-${c.kind}`, `v-${variant}`]}>
+  {c.kind === 'frame' && <BrowserFrame shot={c.shot} lang={lang} class="frame" sizes={frameSizes} eager={eager} />}
+  {
+    c.kind === 'phones' && (
+      <div class="phones">
+        {c.shots.map((s, i) => (
+          <PhoneFrame shot={s} lang={lang} class={`p p${i}`} sizes={phoneSizes} eager={eager} />
+        ))}
+      </div>
+    )
+  }
+  {c.kind === 'diagram' && <DiagnosticFlow lang={lang} compact />}
+  {
+    c.kind === 'numbers' && (
+      <ul class="numbers">
+        {c.items.map((n) => (
+          <li>
+            <span class="display">{n.value}</span>
+            <span>{n.label[lang]}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</div>
+
+<style>
+  .scene {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Окно браузера всегда уходит за нижний край сцены: ширина — не меньше 88% сцены
+     и не меньше той, при которой окно (скриншоты ~2:1 + панель 26px) достаёт до низа. */
+  .scene :global(.frame) {
+    position: absolute;
+    left: 6%;
+    top: 9%;
+    width: max(88%, calc((94cqh - 26px) / 0.494));
+  }
+  .v-card :global(.frame) {
+    left: 24px;
+    top: 24px;
+    width: max(160%, calc((94cqh - 26px) / 0.494));
+    border-radius: 10px 0 0 0;
+  }
+
+  /* Три телефона веером: крепятся к верху сцены, низ обрезается краем сцены */
+  .phones {
+    position: absolute;
+    inset: 0;
+  }
+  .phones :global(.p) {
+    position: absolute;
+    width: 27%;
+    top: 22%;
+  }
+  .phones :global(.p0) {
+    left: 8%;
+  }
+  .phones :global(.p1) {
+    left: 35.5%;
+    width: 29%;
+    top: 7%;
+    z-index: 1;
+  }
+  .phones :global(.p2) {
+    right: 8%;
+  }
+  .v-card .phones :global(.p) {
+    width: 30%;
+    top: 24%;
+  }
+  .v-card .phones :global(.p0) {
+    left: 5%;
+  }
+  .v-card .phones :global(.p1) {
+    left: 34%;
+    width: 32%;
+    top: 8%;
+  }
+  .v-card .phones :global(.p2) {
+    right: 5%;
+  }
+
+  /* типографские сцены */
+  .numbers {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: center;
+    gap: 24px;
+    padding: 8%;
+  }
+  .numbers li {
+    display: grid;
+    gap: 10px;
+    padding-top: 24px;
+    border-top: 1px solid rgb(241 237 230 / 0.2);
+  }
+  .numbers .display {
+    font-size: clamp(3rem, 6vw, 6.5rem);
+    line-height: 1;
+  }
+  .numbers li span:last-child {
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--night-muted);
+  }
+  .v-card .numbers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 24px 20px;
+  }
+  .v-card .numbers .display {
+    font-size: 2.4rem;
+  }
+  .v-card .numbers li span:last-child {
+    font-size: 11px;
+  }
+</style>

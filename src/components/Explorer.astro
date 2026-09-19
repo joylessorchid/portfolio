@@ -1,0 +1,395 @@
+---
+import Icon from './Icon.astro';
+import StageScene from './StageScene.astro';
+import { projects } from '../data/projects';
+import { localePath, useUi, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useUi(lang);
+const s = t.sections.projects;
+const year = (period: string) => (period.match(/\d{4}/) ?? [''])[0];
+const caseUrl = (slug: string) => localePath(lang, `/projects/${slug}/`);
+const featured = projects.filter((p) => p.featured);
+const rest = projects.filter((p) => !p.featured);
+---
+
+<section id="projects" class="night sheet" aria-labelledby="projects-title">
+  <div class="wrap">
+    <header class="head reveal">
+      <h2 id="projects-title" class="h-section">{s.title}</h2>
+      <p class="eyebrow">{s.meta}</p>
+    </header>
+
+    <!-- Десктоп: список слева, сцена справа -->
+    <div class="explorer" data-explorer>
+      <div class="list">
+        {
+          projects.map((p, i) => (
+            <button type="button" class:list={['row', { on: i === 0 }]} data-idx={i} aria-current={i === 0 ? 'true' : 'false'}>
+              <span class="num mono">{String(i + 1).padStart(2, '0')}</span>
+              <span class="mid">
+                <span class="name display">{p.title[lang]}</span>
+                <span class="tagline">{p.tag[lang]}</span>
+              </span>
+              <span class="year mono">{year(p.period.ru)}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="side">
+        <div class="stage" style={`--stage-bg: var(--tint)`} data-stage>
+          {
+            projects.map((p, i) => (
+              <div class:list={['layer', `tint-${p.tint}`, { on: i === 0 }]} data-idx={i}>
+                <StageScene project={p} lang={lang} variant="explorer" eager={i === 0} />
+              </div>
+            ))
+          }
+        </div>
+        <div class="infos">
+          {
+            projects.map((p, i) => (
+              <div class:list={['info', { on: i === 0 }]} data-idx={i}>
+                <div class="info-text">
+                  <p class="meta mono">
+                    <span class:list={['status', `status-${p.status}`]}>● {t.status[p.status]}</span>
+                    <span>{p.period[lang]}</span>
+                  </p>
+                  <p class="desc">{p.summary[lang]}</p>
+                  <p class="stack mono">{p.stack.join(' · ')}</p>
+                </div>
+                <div class="info-actions">
+                  <a class="pill pill-paper" href={caseUrl(p.slug)} data-astro-prefetch>
+                    {t.details}
+                    <Icon name="arrow-right" />
+                  </a>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Телефон и планшет: карточки и список -->
+    <div class="cards">
+      {
+        featured.map((p, i) => (
+          <a class:list={['card', `tint-${p.tint}`, 'reveal']} href={caseUrl(p.slug)} data-astro-prefetch>
+            <div class:list={['card-scene', `kind-${p.cover.kind}`]}>
+              <StageScene project={p} lang={lang} variant="card" />
+            </div>
+            <div class="card-text">
+              <p class="meta mono">
+                <span class:list={['status', `status-${p.status}`]}>{String(i + 1).padStart(2, '0')} · {t.status[p.status]}</span>
+                <span>{year(p.period.ru)}</span>
+              </p>
+              <span class="card-title display">{p.title[lang]}</span>
+              <span class="card-sub">{p.tagline[lang]}</span>
+            </div>
+          </a>
+        ))
+      }
+      <ul class="rest">
+        {
+          rest.map((p, i) => (
+            <li>
+              <a href={caseUrl(p.slug)} data-astro-prefetch>
+                <span class="num mono">{String(featured.length + i + 1).padStart(2, '0')}</span>
+                <span class="mid">
+                  <span class="name display">{p.title[lang]}</span>
+                  <span class="tagline">{p.tag[lang]} · {t.status[p.status].toLowerCase()}</span>
+                </span>
+                <span class="year mono">{year(p.period.ru)}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-explorer]').forEach((root) => {
+    const rows = Array.from(root.querySelectorAll<HTMLButtonElement>('.row'));
+    const layers = Array.from(root.querySelectorAll<HTMLElement>('.layer'));
+    const infos = Array.from(root.querySelectorAll<HTMLElement>('.info'));
+    const stage = root.querySelector<HTMLElement>('[data-stage]');
+    let current = 0;
+    const activate = (i: number) => {
+      if (i === current) return;
+      current = i;
+      rows.forEach((r, k) => {
+        r.classList.toggle('on', k === i);
+        r.setAttribute('aria-current', k === i ? 'true' : 'false');
+      });
+      layers.forEach((l, k) => l.classList.toggle('on', k === i));
+      infos.forEach((n, k) => n.classList.toggle('on', k === i));
+      // цвет подложки берём у активного слоя, чтобы он плавно перетёк
+      if (stage && layers[i]) stage.style.setProperty('--stage-bg', getComputedStyle(layers[i]).getPropertyValue('--tint'));
+    };
+    rows.forEach((r, i) => {
+      r.addEventListener('mouseenter', () => activate(i));
+      r.addEventListener('focus', () => activate(i));
+      r.addEventListener('click', () => activate(i));
+    });
+    if (stage && layers[0]) stage.style.setProperty('--stage-bg', getComputedStyle(layers[0]).getPropertyValue('--tint'));
+  });
+</script>
+
+<style>
+  section {
+    padding-block: clamp(48px, 7vw, 88px) clamp(40px, 6vw, 80px);
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+    margin-bottom: clamp(20px, 3vw, 40px);
+  }
+
+  /* ---------- explorer (desktop) ---------- */
+  .explorer {
+    display: none;
+    grid-template-columns: minmax(360px, 0.72fr) minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+  }
+  .list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--night-line);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 56px;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    height: 80px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--night-line);
+    color: var(--night-muted);
+    text-align: left;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  .row:hover,
+  .row.on {
+    background: rgb(241 237 230 / 0.05);
+    color: var(--night-fg);
+  }
+  .mid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+  .name {
+    font-size: clamp(22px, 1.9vw, 28px);
+    line-height: 1.05;
+    color: var(--night-fg-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: transform 0.45s var(--ease), color 0.3s;
+  }
+  .row.on .name {
+    transform: translateX(10px);
+    color: var(--night-fg);
+  }
+  .num {
+    font-size: 13px;
+    color: #6a665f;
+    transition: color 0.3s;
+  }
+  .row.on .num {
+    color: var(--accent);
+  }
+  .tagline {
+    font-size: 13px;
+    color: var(--night-muted-2);
+  }
+  .row.on .tagline {
+    color: #b8b3aa;
+  }
+  .year {
+    font-size: 12px;
+    text-align: right;
+    color: #6a665f;
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .stage {
+    position: relative;
+    /* высота от ширины; сцена — контейнер, чтобы дети могли считать размеры от неё (cqh) */
+    aspect-ratio: 2.2 / 1;
+    min-height: 220px;
+    container: stage / size;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--stage-bg, var(--night-2));
+    border: 1px solid rgb(241 237 230 / 0.08);
+    transition: background-color 0.7s ease;
+    view-transition-name: case-hero;
+  }
+  .layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: scale(1.035);
+    transition: opacity 0.55s ease, transform 1s var(--ease);
+    pointer-events: none;
+  }
+  .layer.on {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .infos {
+    display: grid;
+  }
+  .info {
+    grid-area: 1 / 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 32px;
+    align-items: start;
+    opacity: 0;
+    transform: translateY(8px);
+    visibility: hidden;
+    transition: opacity 0.35s ease, transform 0.35s var(--ease), visibility 0s 0.35s;
+  }
+  .info.on {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--night-muted-2);
+  }
+  .status-prod { color: #6fd59a; }
+  .status-beta { color: #f5c042; }
+  .status-personal { color: #7fd1b9; }
+  .status-done { color: #b8b3aa; }
+  .desc {
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--night-fg-2);
+    text-wrap: pretty;
+  }
+  .stack {
+    font-size: 13px;
+    color: var(--night-muted-2);
+  }
+  .info-actions {
+    padding-top: 4px;
+  }
+
+  /* ---------- cards (mobile) ---------- */
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--tint);
+    border: 1px solid rgb(241 237 230 / 0.08);
+    transition: transform 0.5s var(--ease);
+  }
+  .card:hover {
+    transform: translateY(-3px);
+  }
+  .card-scene {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    container: stage / size;
+  }
+  .card-scene.kind-diagram {
+    height: 250px;
+  }
+  .card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 20px 20px;
+  }
+  .card .meta {
+    font-size: 11px;
+  }
+  .card-title {
+    font-size: 28px;
+    line-height: 1.05;
+  }
+  .card-sub {
+    font-size: 14px;
+    line-height: 1.45;
+    color: #b8b3aa;
+  }
+  .rest {
+    margin-top: 8px;
+    border-top: 1px solid var(--night-line);
+  }
+  .rest a {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 64px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--night-line);
+  }
+  .rest .name {
+    font-size: 21px;
+    white-space: normal;
+  }
+  .rest .tagline {
+    font-size: 13px;
+  }
+
+  @media (min-width: 960px) {
+    .explorer {
+      display: grid;
+    }
+    .cards {
+      display: none;
+    }
+  }
+  @media (min-width: 960px) and (max-width: 1199px) {
+    .explorer {
+      gap: 32px;
+    }
+    .info {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+</style>
