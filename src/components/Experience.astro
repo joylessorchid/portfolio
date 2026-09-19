@@ -11,7 +11,7 @@ const t = useUi(lang);
 const s = t.sections.experience;
 ---
 
-<section id="experience" class="wrap section" aria-labelledby="experience-title">
+<section id="experience" class="wrap section snap" aria-labelledby="experience-title">
   <div class="cols">
     <header class="side reveal">
       <h2 id="experience-title" class="h-section">{s.title}</h2>
@@ -22,7 +22,7 @@ const s = t.sections.experience;
     <ol class="rows">
       {
         jobs.map((j) => (
-          <li class="row reveal">
+          <li class="row focus">
             <span class="period mono">
               {j.current && <span class="dot dot-live" />}
               {j.period[lang]}
@@ -36,7 +36,7 @@ const s = t.sections.experience;
       }
       {
         education.map((e) => (
-          <li class="row reveal">
+          <li class="row focus">
             <span class="period mono">
               {e.current && <span class="dot dot-live" />}
               {e.period[lang]}

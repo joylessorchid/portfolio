@@ -210,9 +210,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   to { opacity: 1; transform: none; }
 }
 
+/* Важно: для scroll-анимаций не писать сокращённое `animation` вместе с `animation-timeline`.
+   Минификатор склеивает их в `animation: linear both name view()`, а браузеры (Chromium 153)
+   такую запись отбрасывают целиком — анимация пропадает только в production-сборке.
+   Поэтому только отдельные свойства (неполный набор, чтобы склейка была невозможна). */
 @supports (animation-timeline: view()) {
   .reveal {
-    animation: reveal linear both;
+    animation-name: reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: view();
     animation-range: entry 0% entry 30%;
   }
@@ -227,6 +233,42 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .marquee:hover .marquee-track { animation-play-state: paused; }
 @keyframes marquee { to { transform: translateX(-50%); } }
 
+/* Фокус: блок, оказавшийся у центра экрана, «включается», остальные приглушаются.
+   .focus — узкое плато (12% диапазона cover ≈ одна–две строки списка), затем спад:
+   на расстоянии в строку ~0.86, в две ~0.5, дальше ~0.3.
+   .focus-soft — широкое плато для высоких блоков (секции кейса, карточки), чтобы читаемый
+   текст в центре экрана не тускнел. */
+@supports (animation-timeline: view()) {
+  .focus, .focus-soft {
+    animation-name: focus;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+  .focus-soft { animation-name: focus-soft; }
+  @keyframes focus {
+    0% { opacity: 0.22; transform: translateY(18px) scale(0.985); }
+    30% { opacity: 0.5; transform: translateY(6px) scale(0.99); }
+    44%, 56% { opacity: 1; transform: none; }
+    70% { opacity: 0.5; transform: translateY(-4px) scale(0.99); }
+    100% { opacity: 0.22; transform: translateY(-12px) scale(0.985); }
+  }
+  @keyframes focus-soft {
+    0% { opacity: 0.28; transform: translateY(18px) scale(0.985); }
+    35%, 65% { opacity: 1; transform: none; }
+    100% { opacity: 0.28; transform: translateY(-12px) scale(0.985); }
+  }
+}
+
+/* Мягкое примагничивание разделов (proximity: срабатывает только рядом с началом раздела) */
+/* scroll-padding-top оставляет место под шапку + 16px; -16px ставит верх раздела ровно под шапкой */
+.snap { scroll-margin-top: -16px; }
+@media (min-width: 960px) and (prefers-reduced-motion: no-preference) {
+  html { scroll-snap-type: y proximity; }
+  .snap { scroll-snap-align: start; }
+}
+
 /* Наплывание: уходящий блок замедляется, уменьшается и гаснет (.recede),
    а следующий тёмный «лист» со скруглёнными углами наезжает поверх него (.sheet). */
 .sheet {
@@ -237,7 +279,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 @supports (animation-timeline: view()) {
   .recede {
-    animation: recede linear both;
+    animation-name: recede;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: view();
     animation-range: exit 0% exit 100%;
   }
@@ -246,7 +290,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   }
   /* картинки в галереях «доезжают» до своего масштаба, пока входят в экран */
   .reveal-zoom {
-    animation: reveal-zoom linear both;
+    animation-name: reveal-zoom;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: view();
     animation-range: entry 0% entry 100%;
   }
@@ -263,7 +309,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 @media (prefers-reduced-motion: reduce) {
   .rise { animation: none; opacity: 1; }
-  .reveal, .recede, .reveal-zoom { animation: none; }
+  .reveal, .recede, .reveal-zoom, .focus, .focus-soft { animation: none; }
   .marquee-track { animation: none; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0.01ms !important; }
