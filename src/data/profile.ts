@@ -2,7 +2,6 @@ import type { L10n } from '../i18n/ui';
 
 export const profile = {
   name: { ru: 'Николай Скориков', en: 'Nikolay Skorikov' } satisfies L10n,
-  shortName: { ru: 'Н. Скориков', en: 'N. Skorikov' } satisfies L10n,
   firstName: { ru: 'Николай', en: 'Nikolay' } satisfies L10n,
   lastName: { ru: 'Скориков', en: 'Skorikov' } satisfies L10n,
   role: {
