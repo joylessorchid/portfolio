@@ -35,7 +35,7 @@ export const profile = {
   stats: [
     { value: { ru: '3 300+', en: '3,300+' }, label: { ru: 'пользователей у Telegram-бота', en: 'Telegram bot users' } },
     { value: { ru: '40', en: '40' }, label: { ru: 'операторов на телефонии, поднятой с нуля', en: 'call-center agents on telephony built from scratch' } },
-    { value: { ru: '2+', en: '2+' }, label: { ru: 'года в продакшене: деплой, мониторинг, инциденты', en: 'years in production: deploys, monitoring, incidents' } },
+    { value: { ru: '3+', en: '3+' }, label: { ru: 'года в продакшене: деплой, мониторинг, инциденты', en: 'years in production: deploys, monitoring, incidents' } },
   ] satisfies { value: L10n; label: L10n }[],
 
   marquee: {

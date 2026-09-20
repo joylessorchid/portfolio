@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import photo from '../assets/photo.jpg';
+import photo from '../assets/photo-cut.png';
 import { cvFile, useUi, type Lang } from '../i18n/ui';
 import { profile } from '../data/profile';
 
@@ -34,11 +34,10 @@ const marquee = profile.marquee[lang];
         <Image
           src={photo}
           alt={profile.name[lang]}
-          widths={[480, 720, 960]}
-          sizes="(min-width: 1467px) 440px, (min-width: 640px) 30vw, 100vw"
+          widths={[280, 360, 480, 720]}
+          sizes="(min-width: 1500px) 330px, (min-width: 773px) 22vw, 170px"
           quality={80}
-          loading="eager"
-          fetchpriority="high"
+          loading="lazy"
         />
       </div>
       <figcaption class="cap mono">
@@ -142,17 +141,13 @@ const marquee = profile.marquee[lang];
     gap: 14px;
   }
   .photo {
-    overflow: hidden;
-    border-radius: 6px;
+    display: flex;
+    justify-content: flex-end;
   }
   .photo :global(img) {
+    /* фигура вырезана из фона и стоит прямо на бумаге */
     width: 100%;
     height: auto;
-    /* телефон: широкий кадр по грудь, чтобы фото не занимало полэкрана */
-    aspect-ratio: 3 / 2;
-    max-height: 300px;
-    object-fit: cover;
-    object-position: 50% 20%;
     mix-blend-mode: multiply;
     filter: contrast(1.05) saturate(0.85);
     transition: transform 1.2s var(--ease);
@@ -226,17 +221,25 @@ const marquee = profile.marquee[lang];
       flex: 1 1 100%;
     }
   }
+  /* телефон: портрета нет совсем — экран отдан имени, тексту и кнопкам.
+     Вместе со скрытым блоком отпадает и загрузка фотографии (она lazy). */
+  @media (max-width: 639px) {
+    .portrait {
+      display: none;
+    }
+  }
   @media (min-width: 640px) {
-    /* планшет и выше: фото рядом с текстом, ширина плавно растёт до 440px */
+    /* планшет и выше: фигура рядом с текстом, ширина плавно растёт до 330px */
     .grid {
-      grid-template-columns: minmax(0, 1fr) clamp(200px, 30vw, 440px);
+      grid-template-columns: minmax(0, 1fr) clamp(170px, 22vw, 330px);
       gap: clamp(24px, 4vw, 64px);
       align-items: end;
     }
     .photo :global(img) {
-      aspect-ratio: 440 / 520;
-      max-height: none;
-      object-position: 50% 28%;
+      /* фигура ростом с текстовую колонку, срез по низу приходится на бегущую строку */
+      aspect-ratio: 440 / 560;
+      object-fit: cover;
+      object-position: 50% 0;
     }
   }
   @media (min-width: 960px) {

@@ -36,7 +36,7 @@ export const ui = {
       experience: {
         eyebrow: 'Опыт',
         title: 'Опыт',
-        lead: 'Более двух лет эксплуатации production-систем: МПГУ, e-commerce-стартап, собственные продукты. С 2026 года — магистратура НИУ ВШЭ «ЛигалТех».',
+        lead: 'Более трёх лет эксплуатации production-систем: МПГУ, e-commerce-стартап, собственные продукты. С 2026 года — магистратура НИУ ВШЭ «ЛигалТех».',
       },
       education: { eyebrow: 'Образование', title: 'Образование' },
       stack: { eyebrow: 'Стек', title: 'Стек' },
@@ -85,7 +85,7 @@ export const ui = {
       experience: {
         eyebrow: 'Experience',
         title: 'Experience',
-        lead: 'Over two years operating production systems: MPGU, an e-commerce startup, own products. From 2026 — master’s in LegalTech at HSE University.',
+        lead: 'Over three years operating production systems: MPGU, an e-commerce startup, own products. From 2026 — master’s in LegalTech at HSE University.',
       },
       education: { eyebrow: 'Education', title: 'Education' },
       stack: { eyebrow: 'Stack', title: 'Stack' },
