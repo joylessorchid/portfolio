@@ -21,3 +21,6 @@ Thumbs.db
 
 # local tooling
 .claude/
+
+# временные скрипты проверок
+_*.mjs
