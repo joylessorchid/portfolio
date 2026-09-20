@@ -129,8 +129,8 @@ export const education: Study[] = [
     program: { ru: 'Бакалавриат · 09.03.02 «Информационные системы и технологии»', en: 'Bachelor’s in Information Systems & Technology' },
     period: { ru: '2022 — 2026', en: '2022 — 2026' },
     details: {
-      ru: 'Профиль «Гейм-дизайн и виртуальная реальность». ВКР — «Адаптивная образовательная платформа с использованием технологий ИИ»: Telegram-бот, LLM-маршрутизация через OpenRouter, PostgreSQL; апробация на 3 350+ пользователях.',
-      en: 'Game design & VR track. Thesis: “An adaptive learning platform powered by AI” — a Telegram bot with LLM routing via OpenRouter and PostgreSQL, piloted with 3,350+ users.',
+      ru: 'Профиль «Гейм-дизайн и виртуальная реальность». ВКР — «Адаптивная образовательная платформа с использованием технологий ИИ»: Telegram-бот, LLM-маршрутизация через OpenRouter, PostgreSQL; апробация на 4 700+ пользователях.',
+      en: 'Game design & VR track. Thesis: “An adaptive learning platform powered by AI” — a Telegram bot with LLM routing via OpenRouter and PostgreSQL, piloted with 4,700+ users.',
     },
   },
 ];
