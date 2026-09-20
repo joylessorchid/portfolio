@@ -47,17 +47,17 @@ export const jobs: Job[] = [
     org: { ru: 'МПГУ · Центр стратегической работы с абитуриентами', en: 'MPGU · Center for Strategic Work with Applicants' },
     period: { ru: 'Янв 2025 — май 2026', en: 'Jan 2025 — May 2026' },
     summary: {
-      ru: 'Production-бот для 3 300+ студентов, Frappe LMS, Jitsi, Nextcloud, мониторинг; менторство 10+ студентов',
-      en: 'Production bot for 3,300+ students, Frappe LMS, Jitsi, Nextcloud, monitoring; mentoring 10+ students',
+      ru: 'Production-бот для 4 700+ студентов, Frappe LMS, Jitsi, Nextcloud, мониторинг; менторство 10+ студентов',
+      en: 'Production bot for 4,700+ students, Frappe LMS, Jitsi, Nextcloud, monitoring; mentoring 10+ students',
     },
     bullets: {
       ru: [
-        'Сопровождение production Telegram-бота @mpgu_imo_bot для 3 300+ студентов: деплой, on-call, мониторинг, AI-интеграции через OpenRouter',
+        'Сопровождение production Telegram-бота @mpgu_imo_bot для 4 700+ студентов: деплой, on-call, мониторинг, AI-интеграции через OpenRouter',
         'Развёртывание и сопровождение сервисов института: Frappe LMS, Jitsi, Nextcloud, мониторинг на Grafana + Prometheus',
         'Менторство 10+ первокурсников-программистов: технические задания, код-ревью, онбординг',
       ],
       en: [
-        'Operation of the production Telegram bot @mpgu_imo_bot for 3,300+ students: deployment, on-call, monitoring, AI integrations via OpenRouter',
+        'Operation of the production Telegram bot @mpgu_imo_bot for 4,700+ students: deployment, on-call, monitoring, AI integrations via OpenRouter',
         'Deployment and maintenance of institute services: Frappe LMS, Jitsi, Nextcloud, monitoring with Grafana + Prometheus',
         'Mentoring 10+ first-year CS students: task specs, code review, onboarding',
       ],
