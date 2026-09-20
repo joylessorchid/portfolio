@@ -318,8 +318,8 @@ export const projects: Project[] = [
       {
         title: { ru: 'О проекте', en: 'About' },
         text: {
-          ru: 'Бот — ежедневный инструмент студентов МПГУ. Исходный код создан командой из двух разработчиков; роль в проекте — инфраструктура, сопровождение, новые функции и AI-слой. На основе бота подготовлена ВКР «Адаптивная образовательная платформа с использованием технологий ИИ» с апробацией на 3 350+ пользователях.',
-          en: 'The bot is a daily tool for MPGU students. The original code was written by a two-person team; the role in the project covers infrastructure, operations, new features and the AI layer. The bachelor’s thesis “An adaptive learning platform powered by AI” is built on it and was piloted with 3,350+ users.',
+          ru: 'Бот — ежедневный инструмент студентов МПГУ. Исходный код создан командой из двух разработчиков; роль в проекте — инфраструктура, сопровождение, новые функции и AI-слой. На основе бота подготовлена ВКР «Адаптивная образовательная платформа с использованием технологий ИИ» с апробацией на 4 700+ пользователях.',
+          en: 'The bot is a daily tool for MPGU students. The original code was written by a two-person team; the role in the project covers infrastructure, operations, new features and the AI layer. The bachelor’s thesis “An adaptive learning platform powered by AI” is built on it and was piloted with 4,700+ users.',
         },
       },
       {

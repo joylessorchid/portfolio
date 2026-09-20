@@ -21,63 +21,39 @@ const items = await Promise.all(
 const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
 ---
 
-<div class:list={['stack', { phones }]} data-stack>
-  <div class="stage">
-    <div class="frames">
-      {
-        items.map(({ shot, full }, i) => (
-          <figure class:list={['shot', { on: i === 0 }]} data-shot={i}>
-            <a
-              class="zoom"
-              href={full.src}
-              data-lightbox
-              data-caption={shot.alt[lang]}
-              data-w={full.attributes.width}
-              data-h={full.attributes.height}
-              aria-label={`${t.project.openImage}: ${shot.alt[lang]}`}
-            >
-              <Image
-                src={shot.src}
-                alt={shot.alt[lang]}
-                widths={phones ? [320, 480, 640, 960] : [640, 960, 1280, 1600, 1920]}
-                sizes={phones ? '280px' : '(min-width: 1440px) 1280px, 92vw'}
-                quality={84}
-              />
-              <span class="hint" aria-hidden="true"><Icon name="expand" size={16} /></span>
-            </a>
-            <figcaption>{shot.alt[lang]}</figcaption>
-          </figure>
-        ))
-      }
-    </div>
-
-    {/* Подпись к текущему кадру. Дубль figcaption: в закреплённом режиме те скрыты,
-        а смысл подписи несёт alt картинки — поэтому блок скрыт от скринридеров. */}
-    <div class="caps" aria-hidden="true">
-      {items.map(({ shot }, i) => <p class:list={['cap', { on: i === 0 }]} data-cap={i}>{shot.alt[lang]}</p>)}
-    </div>
-
-    <div class="dots">
-      {
-        items.map(({ shot }, i) => (
-          <button
-            type="button"
-            class:list={['dot', { on: i === 0 }]}
-            data-dot={i}
-            aria-current={i === 0 ? 'true' : 'false'}
-            aria-label={`${i + 1} ${t.project.of} ${items.length}: ${shot.alt[lang]}`}
-          >
-            <span class="dot-fill" />
-          </button>
-        ))
-      }
-    </div>
-  </div>
-
-  {/* Пустые экраны прокрутки: пока идёт этот, на закреплённой сцене держится его кадр */}
-  <div class="steps" aria-hidden="true">
-    {items.map((_, i) => <div class="step" data-step={i} />)}
-  </div>
+<div class:list={['gallery', { phones }]}>
+  {
+    items.map(({ shot, full }, i) => (
+      <figure class:list={['shot', 'reveal', { wide: !phones && i === 0 }]}>
+        <a
+          class="zoom"
+          href={full.src}
+          data-lightbox
+          data-caption={shot.alt[lang]}
+          data-w={full.attributes.width}
+          data-h={full.attributes.height}
+          aria-label={`${t.project.openImage}: ${shot.alt[lang]}`}
+        >
+          <Image
+            src={shot.src}
+            alt={shot.alt[lang]}
+            widths={phones ? [320, 480, 640, 960] : [640, 960, 1280, 1600, 1920]}
+            sizes={
+              phones
+                ? '220px'
+                : i === 0
+                  ? '(min-width: 1440px) 1280px, 92vw'
+                  : '(min-width: 1440px) 632px, (min-width: 768px) 46vw, 92vw'
+            }
+            quality={84}
+            class="reveal-zoom"
+          />
+          <span class="hint" aria-hidden="true"><Icon name="expand" size={16} /></span>
+        </a>
+        <figcaption>{shot.alt[lang]}</figcaption>
+      </figure>
+    ))
+  }
 </div>
 
 <dialog class="lightbox" data-lightbox-dialog aria-label={t.project.screens}>
@@ -91,47 +67,14 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
 </dialog>
 
 <script>
-  // Кадры сменяют друг друга по мере прокрутки: сцена закреплена, а под ней проходят пустые
-  // экраны — какой из них пересекает середину окна, тот кадр и показан. Без JS и при
-  // «уменьшить движение» остаётся обычный список кадров.
-  document.querySelectorAll<HTMLElement>('[data-stack]').forEach((stack) => {
-    const shots = [...stack.querySelectorAll<HTMLElement>('.shot')];
-    const steps = [...stack.querySelectorAll<HTMLElement>('.step')];
-    const dots = [...stack.querySelectorAll<HTMLElement>('.dot')];
-    if (shots.length < 2 || !matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
-    stack.classList.add('is-live');
-    stack.querySelectorAll('img').forEach((im) => (im.loading = 'eager')); // следующий кадр должен быть готов заранее
-
-    const caps = [...stack.querySelectorAll<HTMLElement>('.cap')];
-    let active = -1;
-    const setActive = (i: number) => {
-      if (i === active) return;
-      active = i;
-      shots.forEach((s, k) => s.classList.toggle('on', k === i));
-      caps.forEach((c, k) => c.classList.toggle('on', k === i));
-      dots.forEach((d, k) => {
-        d.classList.toggle('on', k === i);
-        d.setAttribute('aria-current', k === i ? 'true' : 'false');
-      });
-    };
-    setActive(0);
-
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setActive(Number((e.target as HTMLElement).dataset.step))),
-      { rootMargin: '-50% 0px -50% 0px' },
-    );
-    steps.forEach((s) => io.observe(s));
-    dots.forEach((d, i) => d.addEventListener('click', () => steps[i].scrollIntoView({ behavior: 'smooth', block: 'center' })));
-  });
-</script>
-
-<script>
   const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox-dialog]');
   const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-lightbox]'));
   if (dialog && links.length) {
     const img = dialog.querySelector<HTMLImageElement>('[data-lb-img]')!;
     const caption = dialog.querySelector<HTMLElement>('[data-lb-caption]')!;
+    const scroller = dialog.querySelector<HTMLElement>('[data-lb-scroll]')!;
     let current = 0;
+
     const show = (i: number) => {
       current = (i + links.length) % links.length;
       const a = links[current];
@@ -140,7 +83,7 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
       img.width = Number(a.dataset.w);
       img.height = Number(a.dataset.h);
       caption.textContent = a.dataset.caption ?? '';
-      // Сначала — уже загруженный кадр со сцены: иначе долю секунды видно прошлую картинку,
+      // Сначала — уже загруженный кадр со страницы: иначе долю секунды видно прошлую картинку,
       // пока грузится полноразмерная. Подменяем, только когда она декодирована.
       img.src = thumb?.currentSrc || a.href;
       if (img.src !== a.href) {
@@ -150,9 +93,9 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
         full.decode ? full.decode().then(swap, swap) : full.addEventListener('load', swap);
       }
     };
+
     // Пока картинка открыта, страница под ней стоит на месте: иначе закрываешь — а ты уже
     // в другом месте кейса. Полосу прокрутки компенсируем отступом, чтобы вёрстка не дёргалась.
-    const scroller = dialog.querySelector<HTMLElement>('[data-lb-scroll]')!;
     const lock = () => {
       document.body.style.paddingRight = `${innerWidth - document.documentElement.clientWidth}px`;
       document.body.style.overflow = 'hidden';
@@ -169,6 +112,10 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
       dialog.classList.toggle('zoomed', on);
       requestAnimationFrame(centre);
     };
+    const step = (d: number) => {
+      zoom(false);
+      show(current + d);
+    };
 
     links.forEach((a, i) => {
       a.addEventListener('click', (e) => {
@@ -182,30 +129,29 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
       a.addEventListener('pointerenter', () => void (new Image().src = a.href), { once: true });
     });
     dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
-    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => (zoom(false), show(current - 1)));
-    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => (zoom(false), show(current + 1)));
+    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => step(-1));
+    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => step(1));
     img.addEventListener('click', () => zoom(!dialog.classList.contains('zoomed')));
     dialog.addEventListener('click', (e) => (e.target === dialog || e.target === scroller) && dialog.close());
     dialog.addEventListener('close', () => {
       unlock();
-      zoom(false);
+      dialog.classList.remove('zoomed');
     });
     dialog.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') (zoom(false), show(current - 1));
-      if (e.key === 'ArrowRight') (zoom(false), show(current + 1));
+      if (e.key === 'ArrowLeft') step(-1);
+      if (e.key === 'ArrowRight') step(1);
     });
     if (links.length < 2) dialog.querySelectorAll<HTMLElement>('.lb-nav').forEach((b) => (b.hidden = true));
   }
 </script>
 
 <style>
-  /* Обычный список кадров — состояние без JS и при «уменьшить движение» */
-  .frames {
+  .gallery {
     display: grid;
-    gap: 24px;
+    gap: 16px;
   }
-  /* экраны телефона в списке — рядами по своей ширине, а не во всю колонку */
-  .phones .frames {
+  /* экраны телефона — рядами по своей ширине, а не во всю колонку */
+  .phones {
     grid-template-columns: repeat(auto-fill, minmax(140px, 220px));
     gap: 20px;
   }
@@ -213,11 +159,6 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
     display: grid;
     gap: 10px;
     margin: 0;
-  }
-  .steps,
-  .dots,
-  .caps {
-    display: none;
   }
   .zoom {
     position: relative;
@@ -264,113 +205,13 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
     font-size: 14px;
     line-height: 1.45;
   }
-
-  /* Листание прокруткой: сцена закреплена, кадры сменяют друг друга */
-  .is-live {
-    display: grid;
-  }
-  .is-live .stage,
-  .is-live .steps {
-    grid-area: 1 / 1;
-  }
-  .is-live {
-    --stage-h: min(72svh, 660px);
-  }
-  .is-live .stage {
-    position: sticky;
-    /* по центру области под шапкой, иначе снизу остаётся пустая полоса */
-    top: calc(var(--header-h) + (100svh - var(--header-h) - var(--stage-h)) / 2);
-    align-self: start;
-    display: grid;
-    grid-template-rows: minmax(0, 1fr) auto auto;
-    gap: 14px;
-    height: var(--stage-h);
-  }
-  /* размер кадра считаем в единицах этого контейнера: проценты высоты внутри сетки
-     не разрешаются, и картинка оставалась в своём размере */
-  .is-live .frames {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    container-type: size;
-    gap: 0;
-    min-height: 0;
-  }
-  .is-live .shot {
-    grid-area: 1 / 1;
-    place-items: center;
-    min-height: 0;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(16px) scale(0.99);
-    transition: opacity 0.45s var(--ease), transform 0.6s var(--ease), visibility 0s linear 0.45s;
-  }
-  .is-live .shot.on {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition-delay: 0s, 0s, 0s;
-  }
-  .is-live .zoom {
-    display: block;
-    max-width: 100cqw;
-    max-height: 100cqh;
-  }
-  .is-live .zoom :global(img) {
-    width: auto;
-    height: auto;
-    max-width: 100cqw;
-    max-height: 100cqh;
-  }
-  .is-live figcaption {
-    display: none;
-  }
-  .is-live .caps {
-    display: grid;
-    min-height: 2.9em;
-  }
-  .cap {
-    grid-area: 1 / 1;
-    margin: 0;
-    text-align: center;
-    text-wrap: balance;
-    color: var(--ink-3);
-    font-size: 14px;
-    line-height: 1.45;
-    opacity: 0;
-    transition: opacity 0.35s var(--ease);
-  }
-  .cap.on {
-    opacity: 1;
-  }
-  .is-live .steps {
-    display: grid;
-    pointer-events: none;
-  }
-  .is-live .step {
-    height: 80svh;
-  }
-  .is-live .dots {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-  }
-  .dot {
-    width: 34px;
-    padding: 8px 0;
-    background: none;
-    border: 0;
-    cursor: pointer;
-  }
-  .dot-fill {
-    display: block;
-    height: 2px;
-    border-radius: 2px;
-    background: var(--line-2);
-    transition: background-color 0.3s;
-  }
-  .dot.on .dot-fill,
-  .dot:hover .dot-fill {
-    background: var(--accent);
+  @media (min-width: 768px) {
+    .gallery:not(.phones) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .wide {
+      grid-column: 1 / -1;
+    }
   }
 
   .lightbox {
