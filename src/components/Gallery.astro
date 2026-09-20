@@ -37,8 +37,8 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
           <Image
             src={shot.src}
             alt={shot.alt[lang]}
-            widths={phones ? [320, 480, 640] : [640, 960, 1280, 1600]}
-            sizes={phones ? '(min-width: 960px) 240px, 45vw' : i === 0 ? '(min-width: 1200px) 1136px, 92vw' : '(min-width: 960px) 560px, 92vw'}
+            widths={phones ? [320, 480, 640] : [640, 960, 1280, 1600, 1920]}
+            sizes={phones ? '(min-width: 960px) 240px, 45vw' : i === 0 ? '(min-width: 1440px) 1280px, 92vw' : '(min-width: 1440px) 632px, (min-width: 768px) 46vw, 92vw'}
             quality={84}
             class="reveal-zoom"
           />
@@ -144,7 +144,8 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
     line-height: 1.45;
   }
   .phones {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    /* на телефонах 320px — всё равно две колонки, а не пять экранов друг под другом */
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   }
   .phones .zoom {
     border-radius: 24px;

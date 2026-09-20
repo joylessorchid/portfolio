@@ -13,7 +13,7 @@ const c = profile.contacts;
 const year = new Date().getFullYear();
 ---
 
-<section id="contact" class="night sheet snap" aria-labelledby="contact-title">
+<section id="contact" class="night sheet" data-stop="start" aria-labelledby="contact-title">
   <div class="wrap inner">
     <div class="ring ring-1" aria-hidden="true"></div>
     <div class="ring ring-2" aria-hidden="true"></div>
@@ -110,7 +110,8 @@ const year = new Date().getFullYear();
     gap: 22px;
   }
   .title {
-    font-size: clamp(2.6rem, 1.6rem + 3.8vw, 5.25rem);
+    font-size: clamp(2rem, 1.1rem + 4.4vw, 5.25rem);
+    overflow-wrap: anywhere;
     line-height: 1;
     letter-spacing: -0.025em;
     max-width: 14ch;

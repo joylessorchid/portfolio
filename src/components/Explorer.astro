@@ -16,7 +16,7 @@ const featured = projects.filter((p) => p.featured);
 const rest = projects.filter((p) => !p.featured);
 ---
 
-<section id="projects" class="night sheet snap" aria-labelledby="projects-title">
+<section id="projects" class="night sheet" data-stop="start" aria-labelledby="projects-title">
   <div class="wrap">
     <header class="head reveal">
       <h2 id="projects-title" class="h-section">{s.title}</h2>
@@ -77,6 +77,7 @@ const rest = projects.filter((p) => !p.featured);
 
     <!-- Телефон и планшет: карточки и список -->
     <div class="cards">
+      <div class="card-grid">
       {
         featured.map((p, i) => (
           <a class:list={['card', `tint-${p.tint}`, 'focus-soft']} href={caseUrl(p.slug)} data-astro-prefetch>
@@ -94,6 +95,7 @@ const rest = projects.filter((p) => !p.featured);
           </a>
         ))
       }
+      </div>
       <ul class="rest">
         {
           rest.map((p, i) => (
@@ -137,6 +139,15 @@ const rest = projects.filter((p) => !p.featured);
       r.addEventListener('mouseenter', () => activate(i));
       r.addEventListener('focus', () => activate(i));
       r.addEventListener('click', () => activate(i));
+    });
+    // «Открыть кейс»: сцена перетекает в шапку страницы кейса (имя перехода — только на этот клик)
+    root.querySelectorAll<HTMLAnchorElement>('.info a').forEach((a) =>
+      a.addEventListener('click', () => {
+        if (stage) stage.style.viewTransitionName = 'case-hero';
+      }),
+    );
+    addEventListener('pageshow', (e) => {
+      if (e.persisted && stage) stage.style.viewTransitionName = '';
     });
     if (stage && layers[0]) stage.style.setProperty('--stage-bg', getComputedStyle(layers[0]).getPropertyValue('--tint'));
   });
@@ -206,7 +217,7 @@ const rest = projects.filter((p) => !p.featured);
   }
   .num {
     font-size: 13px;
-    color: #6a665f;
+    color: var(--night-muted-2);
     transition: color 0.3s;
   }
   .row.on .num {
@@ -222,7 +233,7 @@ const rest = projects.filter((p) => !p.featured);
   .year {
     font-size: 12px;
     text-align: right;
-    color: #6a665f;
+    color: var(--night-muted-2);
   }
 
   .side {
@@ -232,28 +243,30 @@ const rest = projects.filter((p) => !p.featured);
   }
   .stage {
     position: relative;
-    /* высота от ширины; сцена — контейнер, чтобы дети могли считать размеры от неё (cqh) */
+    /* высота от ширины; сцена — контейнер, чтобы дети могли считать размеры от неё (cqh).
+       Без min-height: вместе с aspect-ratio он превращается в минимальную ширину. */
     aspect-ratio: 2.2 / 1;
-    min-height: 220px;
     container: stage / size;
     border-radius: 24px;
     overflow: hidden;
     background: var(--stage-bg, var(--night-2));
     border: 1px solid rgb(241 237 230 / 0.08);
     transition: background-color 0.7s ease;
-    view-transition-name: case-hero;
   }
   .layer {
     position: absolute;
     inset: 0;
     opacity: 0;
+    visibility: hidden;
     transform: scale(1.035);
-    transition: opacity 0.55s ease, transform 1s var(--ease);
+    transition: opacity 0.55s ease, transform 1s var(--ease), visibility 0s 0.55s;
     pointer-events: none;
   }
   .layer.on {
     opacity: 1;
+    visibility: visible;
     transform: none;
+    transition-delay: 0s;
     pointer-events: auto;
   }
 
@@ -315,6 +328,15 @@ const rest = projects.filter((p) => !p.featured);
     flex-direction: column;
     gap: 16px;
   }
+  .card-grid {
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 640px) {
+    .card-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
   .card {
     display: flex;
     flex-direction: column;
@@ -344,6 +366,7 @@ const rest = projects.filter((p) => !p.featured);
   }
   .card .meta {
     font-size: 11px;
+    color: #b8b3aa;
   }
   .card-title {
     font-size: 28px;

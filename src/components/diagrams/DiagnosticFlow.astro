@@ -129,7 +129,7 @@ const steps = [
     color: var(--night-fg);
   }
   :global(.night) .label {
-    color: var(--night-muted);
+    color: #b8b3aa;
   }
   :global(.night) .label span {
     color: #7fd1b9;
@@ -162,7 +162,7 @@ const steps = [
   .compact .step:nth-child(4) { margin-left: 15%; }
   .compact .step + .step::before { left: calc(28px - 5%); }
 
-  @container stage (max-height: 359px) {
+  @container stage (max-height: 439px) {
     .compact {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       padding: 4% 6%;
@@ -176,15 +176,6 @@ const steps = [
       display: none;
     }
     .compact .meta {
-      display: none;
-    }
-  }
-  /* узкая карточка на телефоне: короче заголовки, без бейджа — он есть на странице кейса */
-  @container stage (max-width: 420px) {
-    .compact .title {
-      font-size: 12px;
-    }
-    .compact .badge {
       display: none;
     }
   }
@@ -208,13 +199,55 @@ const steps = [
       padding: 2px 8px;
     }
   }
+  /* Узкая карточка: мельче заголовки, без бейджа — он есть на странице кейса.
+     Идёт после правила по высоте, чтобы при узкой и низкой сцене победили эти размеры. */
+  @container stage (max-width: 420px) {
+    .compact .title {
+      font-size: 12px;
+    }
+    .compact .badge {
+      display: none;
+    }
+  }
+  /* Совсем узкая сцена (телефоны 320–360px): только этапы, без описаний — иначе текст не влезает */
+  @container stage (max-width: 300px) {
+    .compact {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 6px;
+      padding: 16px 18px;
+    }
+    .compact .title,
+    .compact .meta,
+    .compact .badge {
+      display: none;
+    }
+    .compact .step {
+      padding: 9px 12px;
+    }
+    .compact .step:nth-child(2) { margin-left: 6%; }
+    .compact .step:nth-child(3) { margin-left: 12%; }
+    .compact .step:nth-child(4) { margin-left: 18%; }
+    .compact .label {
+      font-size: 11px;
+    }
+  }
 
-  @media (min-width: 900px) {
+  /* Полная схема на странице кейса: колонки по ширине самой схемы (контейнер .diagram), а не экрана */
+  @container (min-width: 480px) {
+    .full {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .full .step + .step::before {
+      display: none;
+    }
+  }
+  @container (min-width: 760px) {
     .full {
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
     }
     .full .step + .step::before {
+      display: block;
       left: -17px;
       top: 50%;
       width: 16px;

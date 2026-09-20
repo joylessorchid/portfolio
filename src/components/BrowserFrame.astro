@@ -13,7 +13,7 @@ interface Props {
 
 const { shot, lang, class: className, sizes = '(min-width: 960px) 560px, 88vw', eager = false } = Astro.props;
 // ширины больше оригинала Astro сам заменяет на исходную — фильтровать не нужно
-const widths = [480, 720, 960, 1280, 1600];
+const widths = [480, 720, 960, 1280, 1600, 1920];
 ---
 
 <div class:list={['bframe', className]} data-shot-theme={shot.theme}>
@@ -46,7 +46,7 @@ const widths = [480, 720, 960, 1280, 1600];
   }
   .bframe[data-shot-theme='light'] {
     --frame: #ffffff;
-    --frame-ink: rgb(17 17 19 / 0.5);
+    --frame-ink: rgb(17 17 19 / 0.62);
     --frame-dot: rgb(17 17 19 / 0.16);
   }
   .bar {

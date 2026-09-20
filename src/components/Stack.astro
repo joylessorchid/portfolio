@@ -9,14 +9,14 @@ const { lang } = Astro.props;
 const t = useUi(lang);
 ---
 
-<section id="stack" class="wrap section recede snap" aria-labelledby="stack-title">
+<section id="stack" class="wrap section recede" data-stop="start" aria-labelledby="stack-title">
   <header class="head reveal">
     <h2 id="stack-title" class="h-section">{t.sections.stack.title}</h2>
   </header>
   <div class="groups">
     {
       skills.map((g) => (
-        <div class="group focus">
+        <div class="group focus" data-stop="center">
           <h3>{g.title[lang]}</h3>
           <ul class="tags">
             {g.items.map((i) => (

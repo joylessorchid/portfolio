@@ -12,6 +12,8 @@ const { lang, path } = Astro.props;
 const t = useUi(lang);
 const other: Lang = lang === 'ru' ? 'en' : 'ru';
 const home = localePath(lang, '/');
+// у 404 нет пары на другом языке — ведём на главную
+const otherHref = path === '/404/' ? localePath(other, '/') : localePath(other, path);
 const links = [
   { href: `${home}#projects`, label: t.nav.projects },
   { href: `${home}#services`, label: t.nav.services },
@@ -29,7 +31,7 @@ const links = [
     </nav>
 
     <div class="actions">
-      <a class="lang mono" href={localePath(other, path)} hreflang={other} lang={other} title={t.langSwitch} aria-label={t.langSwitch}>
+      <a class="lang mono" href={otherHref} hreflang={other} lang={other} title={t.langSwitch} aria-label={t.langSwitch}>
         <span class:list={{ on: lang === 'ru' }}>RU</span> / <span class:list={{ on: lang === 'en' }}>EN</span>
       </a>
       <a class="cv link-ul" href={cvFile[lang]} download>{t.cv}</a>

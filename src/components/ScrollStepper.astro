@@ -1,0 +1,220 @@
+---
+/* Пошаговая прокрутка главной на десктопе: один жест колесом или тачпадом — один блок.
+   [data-stop="start"] — раздел: встаёт вплотную под шапку (а если он выше экрана и строк внутри
+   нет — так, чтобы влезло содержимое, или в две остановки: верх и низ). [data-stop="center"] —
+   строка списка: встаёт в центр зоны фокуса, где её «включает» .focus. Разрыв между остановками
+   больше экрана делится на равные шаги — содержимое не перепрыгивается.
+   Клавиатура, полоса прокрутки, тач и якорные ссылки работают как обычно.
+   CSS scroll-snap здесь не годится: в Chromium proximity возвращает страницу назад после щелчка
+   колеса, а mandatory внутри высоких разделов прокручивает на 100px вместо следующего блока. */
+---
+
+<script>
+  const MERGE = 90; // остановки ближе сливаются: сдвиг на полсотни пикселей выглядит как дёрганье
+  const GAP = 140; // мс тишины, после которых следующий щелчок колеса — новый жест
+  const SPRING = 11; // рад/с: 90% пути за ~0,35 с, докатывается без перелёта
+
+  const root = document.documentElement;
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const media = matchMedia('(min-width: 960px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+
+  let stops: number[] = [];
+  let dirty = true;
+  let x = 0;
+  let v = 0;
+  let target = 0;
+  let raf = 0;
+  let prevT = 0;
+  let expected = 0;
+  let lastWheel = -Infinity;
+  let lastStep = -Infinity;
+  let lastDir = 0;
+  let armed = false;
+  let recent: number[] = [];
+
+  // Позиция в документе без transform: у разделов и строк свои scroll-анимации со сдвигом.
+  const layoutTop = (el: HTMLElement) => {
+    let y = 0;
+    for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) y += n.offsetTop;
+    return y;
+  };
+
+  function measure() {
+    dirty = false;
+    const vh = innerHeight;
+    const head = header?.offsetHeight ?? 0;
+    const focusTop = head + 16; // = scroll-padding-top: от него же считают view()-таймлайны
+    const visible = vh - head;
+    const max = Math.max(0, root.scrollHeight - vh);
+    const found: { el: HTMLElement; mode: string; y: number }[] = [];
+    const shown = [...document.querySelectorAll<HTMLElement>('[data-stop]')].filter((el) => el.offsetParent); // без скрытых на этой ширине
+    for (const el of shown) {
+      const y = layoutTop(el);
+      const h = el.offsetHeight;
+      const mode = el.dataset.stop ?? '';
+      if (mode === 'center') {
+        if (h <= vh - focusTop - 48) found.push({ el, mode, y: y + h / 2 - (focusTop + vh) / 2 });
+        else found.push({ el, mode, y: y - focusTop }, { el, mode, y: y + h - vh + 24 });
+      } else if (shown.some((c) => c !== el && el.contains(c)) || h <= visible) {
+        found.push({ el, mode, y: y - head }); // раздел со строками или целиком влезающий — вплотную под шапку
+      } else {
+        // Раздел без строк, выше экрана: если без внутренних отступов он влезает, сдвигаемся
+        // в пределах верхнего отступа ровно настолько, чтобы показать низ содержимого (кнопку),
+        // иначе — две остановки: верх и низ содержимого.
+        const cs = getComputedStyle(el);
+        const top = y + parseFloat(cs.paddingTop);
+        const bottom = y + h - parseFloat(cs.paddingBottom);
+        if (bottom - top <= visible - 32) found.push({ el, mode, y: Math.max(y - head, bottom - vh + 16) });
+        else found.push({ el, mode, y: y - head }, { el, mode: 'end', y: bottom - vh + 24 });
+      }
+    }
+    // Раздел со строками внутри: если первая строка встаёт в фокус раньше (или чуть позже), чем
+    // верх раздела под шапкой, заголовок и так виден — останавливаемся сразу на строке, иначе
+    // лишняя остановка между строками выглядит как шаг назад.
+    const near = Math.max(MERGE, visible * 0.3);
+    const raw = [0, max];
+    for (const s of found) {
+      if (s.mode === 'start') {
+        const inner = found.filter((c) => c.el !== s.el && c.mode === 'center' && s.el.contains(c.el));
+        if (inner.length && Math.min(...inner.map((c) => c.y)) < s.y + near) continue;
+      }
+      raw.push(s.y);
+    }
+    const sorted = raw.map((s) => Math.round(Math.min(max, Math.max(0, s)))).sort((a, b) => a - b);
+    const merged: number[] = [];
+    for (const s of sorted) {
+      if (!merged.length || s - merged[merged.length - 1] >= MERGE) merged.push(s);
+      else if (s === max) merged[merged.length - 1] = max; // низ страницы достижим всегда
+    }
+    // Разрыв больше экрана делим на равные шаги. Допуск 96px: столько между соседними остановками
+    // может оставаться неувиденным только в отступах разделов (на десктопе они не меньше 88px).
+    stops = [];
+    merged.forEach((s, i) => {
+      const gap = i ? s - merged[i - 1] : 0;
+      if (gap > visible + 96) {
+        const n = Math.ceil(gap / (visible - 64));
+        for (let k = 1; k < n; k++) stops.push(Math.round(merged[i - 1] + (gap * k) / n));
+      }
+      stops.push(s);
+    });
+  }
+
+  function tick(now: number) {
+    const dt = Math.min(0.05, Math.max(0, (now - prevT) / 1000)); // метка кадра бывает раньше события колеса
+    prevT = now;
+    // критически задемпфированная пружина, точное решение на шаге dt: плавно и без перелёта,
+    // а новая цель посреди движения подхватывается с текущей скоростью
+    const d = x - target;
+    const k = v + SPRING * d;
+    const e = Math.exp(-SPRING * dt);
+    x = target + (d + k * dt) * e;
+    v = (v - k * SPRING * dt) * e;
+    const done = Math.abs(x - target) < 0.5 && Math.abs(v) < 10;
+    if (done) x = target;
+    expected = x;
+    scrollTo({ top: x, behavior: 'instant' });
+    raf = done ? 0 : requestAnimationFrame(tick);
+  }
+
+  function go(y: number) {
+    target = y;
+    if (raf) return;
+    x = expected = scrollY;
+    v = 0;
+    prevT = performance.now();
+    raf = requestAnimationFrame(tick);
+  }
+
+  function halt() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    v = 0;
+  }
+
+  function step(dir: number) {
+    if (dirty) measure();
+    const from = raf ? target : scrollY;
+    let next: number | undefined;
+    if (dir > 0) next = stops.find((s) => s > from + 2);
+    else for (const s of stops) if (s < from - 2) next = s;
+    if (next !== undefined) go(next);
+  }
+
+  // Вложенный прокручиваемый блок, которому ещё есть куда ехать, прокручивается сам.
+  function scrollsInside(t: EventTarget | null, dy: number) {
+    for (let el = t instanceof Element ? t : null; el && el !== document.body; el = el.parentElement) {
+      const oy = getComputedStyle(el).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) {
+        if (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true;
+      }
+    }
+    return false;
+  }
+
+  function onWheel(e: WheelEvent) {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+    const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
+    if (!dy || Math.abs(e.deltaX) > Math.abs(dy)) return;
+    if (document.body.style.overflow === 'hidden' || document.querySelector('dialog[open]')) return;
+    if (scrollsInside(e.target, dy)) return;
+    e.preventDefault();
+
+    // Жест — поток событий без пауз дольше GAP. Он делает один шаг — на первом заметном событии
+    // (мелкие в начале свайпа, хвост инерции и дрожание тачпада жест продлевают, но не шагают).
+    // Ещё шаг внутри потока — только от нового толчка: резкий рост силы (повторный свайп поверх
+    // инерции) или ровное, без затухания, продолжающееся вращение колеса.
+    const now = performance.now();
+    if (now - lastWheel > GAP) {
+      armed = true;
+      recent = [];
+    }
+    lastWheel = now;
+    const abs = Math.abs(dy);
+    if (abs < 4) return;
+    const dir = Math.sign(dy);
+    if (dir !== lastDir) {
+      armed = true;
+      recent = [];
+      lastDir = dir;
+    }
+    const avg = recent.length ? recent.reduce((a, b) => a + b) / recent.length : 0;
+    const since = now - lastStep;
+    const push = since > 220 && ((abs >= 16 && abs > avg * 1.8) || (abs >= 50 && abs >= avg * 0.95 && since > 260));
+    recent.push(abs);
+    if (recent.length > 4) recent.shift();
+    if (armed || push) {
+      armed = false;
+      lastStep = now;
+      step(dir);
+    }
+  }
+
+  // Своё движение пользователя (клавиши, полоса прокрутки, клик по якорю, тач) прерывает шаг.
+  addEventListener(
+    'scroll',
+    () => {
+      if (raf && Math.abs(scrollY - expected) > 3) halt();
+    },
+    { passive: true },
+  );
+  for (const type of ['pointerdown', 'keydown', 'touchstart']) addEventListener(type, halt, { capture: true, passive: true });
+
+  const invalidate = () => (dirty = true);
+  addEventListener('resize', invalidate);
+  addEventListener('load', invalidate);
+  document.fonts?.ready.then(invalidate);
+  new ResizeObserver(invalidate).observe(document.body);
+
+  let on = false;
+  const sync = () => {
+    if (media.matches === on) return;
+    on = media.matches;
+    if (on) addEventListener('wheel', onWheel, { passive: false });
+    else {
+      removeEventListener('wheel', onWheel);
+      halt();
+    }
+  };
+  media.addEventListener('change', sync);
+  sync();
+</script>

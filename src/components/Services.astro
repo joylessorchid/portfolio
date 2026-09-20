@@ -12,7 +12,7 @@ const t = useUi(lang);
 const s = t.sections.services;
 ---
 
-<section id="services" class="wrap section snap" aria-labelledby="services-title">
+<section id="services" class="wrap section" data-stop="start" aria-labelledby="services-title">
   <header class="head reveal">
     <h2 id="services-title" class="h-section">{s.title}</h2>
     <p class="lead">{s.lead}</p>
@@ -23,7 +23,7 @@ const s = t.sections.services;
         const proof = svc.proof.map((slug) => getProject(slug)).filter(Boolean);
         const href = localePath(lang, `/projects/${svc.proof[0]}/`);
         return (
-          <a class="row focus" href={href} data-astro-prefetch>
+          <a class="row focus" href={href} data-stop="center" data-astro-prefetch>
             <span class="num mono">{String(i + 1).padStart(2, '0')}</span>
             <span class="title display">{svc.title[lang]}</span>
             <span class="text">
@@ -72,7 +72,8 @@ const s = t.sections.services;
     padding-top: 6px;
   }
   .title {
-    font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.75rem);
+    font-size: clamp(1.45rem, 1rem + 2.4vw, 2.75rem);
+    overflow-wrap: anywhere;
     line-height: 1.02;
     letter-spacing: -0.01em;
     transition: color 0.3s;
