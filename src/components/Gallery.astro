@@ -21,123 +21,107 @@ const items = await Promise.all(
 const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
 ---
 
-<div class:list={['carousel', 'reveal', { phones }]} data-gallery>
-  <div class="track" data-track tabindex="0" role="group" aria-label={t.project.screens}>
-    {
-      items.map(({ shot, full }) => (
-        <figure class="slide">
-          <a
-            class="zoom"
-            href={full.src}
-            data-lightbox
-            data-caption={shot.alt[lang]}
-            data-w={full.attributes.width}
-            data-h={full.attributes.height}
-            aria-label={`${t.project.openImage}: ${shot.alt[lang]}`}
+<div class:list={['stack', { phones }]} data-stack>
+  <div class="stage">
+    <div class="frames">
+      {
+        items.map(({ shot, full }, i) => (
+          <figure class:list={['shot', { on: i === 0 }]} data-shot={i}>
+            <a
+              class="zoom"
+              href={full.src}
+              data-lightbox
+              data-caption={shot.alt[lang]}
+              data-w={full.attributes.width}
+              data-h={full.attributes.height}
+              aria-label={`${t.project.openImage}: ${shot.alt[lang]}`}
+            >
+              <Image
+                src={shot.src}
+                alt={shot.alt[lang]}
+                widths={phones ? [320, 480, 640, 960] : [640, 960, 1280, 1600, 1920]}
+                sizes={phones ? '280px' : '(min-width: 1440px) 1280px, 92vw'}
+                quality={84}
+              />
+              <span class="hint" aria-hidden="true"><Icon name="expand" size={16} /></span>
+            </a>
+            <figcaption>{shot.alt[lang]}</figcaption>
+          </figure>
+        ))
+      }
+    </div>
+
+    {/* Подпись к текущему кадру. Дубль figcaption: в закреплённом режиме те скрыты,
+        а смысл подписи несёт alt картинки — поэтому блок скрыт от скринридеров. */}
+    <div class="caps" aria-hidden="true">
+      {items.map(({ shot }, i) => <p class:list={['cap', { on: i === 0 }]} data-cap={i}>{shot.alt[lang]}</p>)}
+    </div>
+
+    <div class="dots">
+      {
+        items.map(({ shot }, i) => (
+          <button
+            type="button"
+            class:list={['dot', { on: i === 0 }]}
+            data-dot={i}
+            aria-current={i === 0 ? 'true' : 'false'}
+            aria-label={`${i + 1} ${t.project.of} ${items.length}: ${shot.alt[lang]}`}
           >
-            <Image
-              src={shot.src}
-              alt={shot.alt[lang]}
-              widths={phones ? [320, 480, 640] : [640, 960, 1280, 1600, 1920]}
-              sizes={phones ? '(min-width: 622px) 280px, 45vw' : '(min-width: 1024px) 880px, 86vw'}
-              quality={84}
-            />
-            <span class="hint" aria-hidden="true"><Icon name="expand" size={16} /></span>
-          </a>
-          <figcaption>{shot.alt[lang]}</figcaption>
-        </figure>
-      ))
-    }
+            <span class="dot-fill" />
+          </button>
+        ))
+      }
+    </div>
   </div>
 
-  <div class="bar">
-    <p class="count mono"><span data-count>1</span> {t.project.of} {items.length}</p>
-    <div class="navs">
-      <button class="nav" type="button" data-prev aria-label="←"><Icon name="arrow-left" /></button>
-      <button class="nav" type="button" data-next aria-label="→"><Icon name="arrow-right" /></button>
-    </div>
+  {/* Пустые экраны прокрутки: пока идёт этот, на закреплённой сцене держится его кадр */}
+  <div class="steps" aria-hidden="true">
+    {items.map((_, i) => <div class="step" data-step={i} />)}
   </div>
 </div>
 
 <dialog class="lightbox" data-lightbox-dialog aria-label={t.project.screens}>
+  <div class="lb-scroll" data-lb-scroll>
+    <img alt="" data-lb-img />
+  </div>
   <button class="lb-close" type="button" data-lb-close aria-label={t.close}><Icon name="x" /></button>
   <button class="lb-nav prev" type="button" data-lb-prev aria-label="←"><Icon name="arrow-left" /></button>
-  <img alt="" data-lb-img />
   <button class="lb-nav next" type="button" data-lb-next aria-label="→"><Icon name="arrow-right" /></button>
   <p class="lb-caption" data-lb-caption></p>
 </dialog>
 
 <script>
-  // Карусель: пролистывание мышью, пальцем, стрелками и кнопками; снап по кадрам.
-  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
-    const track = root.querySelector<HTMLElement>('[data-track]');
-    const slides = [...root.querySelectorAll<HTMLElement>('.slide')];
-    const prev = root.querySelector<HTMLButtonElement>('[data-prev]');
-    const next = root.querySelector<HTMLButtonElement>('[data-next]');
-    const count = root.querySelector<HTMLElement>('[data-count]');
-    if (!track || !prev || !next || !count || !slides.length) return;
+  // Кадры сменяют друг друга по мере прокрутки: сцена закреплена, а под ней проходят пустые
+  // экраны — какой из них пересекает середину окна, тот кадр и показан. Без JS и при
+  // «уменьшить движение» остаётся обычный список кадров.
+  document.querySelectorAll<HTMLElement>('[data-stack]').forEach((stack) => {
+    const shots = [...stack.querySelectorAll<HTMLElement>('.shot')];
+    const steps = [...stack.querySelectorAll<HTMLElement>('.step')];
+    const dots = [...stack.querySelectorAll<HTMLElement>('.dot')];
+    if (shots.length < 2 || !matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+    stack.classList.add('is-live');
+    stack.querySelectorAll('img').forEach((im) => (im.loading = 'eager')); // следующий кадр должен быть готов заранее
 
-    const current = () => {
-      const left = track.getBoundingClientRect().left + parseFloat(getComputedStyle(track).paddingLeft);
-      let best = 0;
-      let dist = Infinity;
-      slides.forEach((s, i) => {
-        const d = Math.abs(s.getBoundingClientRect().left - left);
-        if (d < dist) {
-          dist = d;
-          best = i;
-        }
+    const caps = [...stack.querySelectorAll<HTMLElement>('.cap')];
+    let active = -1;
+    const setActive = (i: number) => {
+      if (i === active) return;
+      active = i;
+      shots.forEach((s, k) => s.classList.toggle('on', k === i));
+      caps.forEach((c, k) => c.classList.toggle('on', k === i));
+      dots.forEach((d, k) => {
+        d.classList.toggle('on', k === i);
+        d.setAttribute('aria-current', k === i ? 'true' : 'false');
       });
-      return best;
     };
-    const sync = () => {
-      count.textContent = String(current() + 1);
-      prev.disabled = track.scrollLeft <= 2;
-      next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
-    };
-    const go = (i: number) =>
-      slides[Math.max(0, Math.min(slides.length - 1, i))].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    setActive(0);
 
-    // Кадры за краем экрана браузер откладывает (по горизонтали он их «не видит»), и при
-    // пролистывании слайд оказывался пустым. Как только карусель подходит к экрану — грузим все.
-    new IntersectionObserver((entries, obs) => {
-      if (!entries.some((e) => e.isIntersecting)) return;
-      root.querySelectorAll('img').forEach((im) => (im.loading = 'eager'));
-      obs.disconnect();
-    }, { rootMargin: '300px' }).observe(root);
-
-    prev.addEventListener('click', () => go(current() - 1));
-    next.addEventListener('click', () => go(current() + 1));
-    track.addEventListener('scroll', () => requestAnimationFrame(sync), { passive: true });
-    addEventListener('resize', sync);
-    sync();
-
-    // Протаскивание мышью, как в лендингах; на тач-экранах работает родная прокрутка.
-    let dragging = false;
-    let startX = 0;
-    let startLeft = 0;
-    let moved = 0;
-    track.addEventListener('pointerdown', (e) => {
-      if (e.pointerType !== 'mouse' || e.button !== 0) return;
-      dragging = true;
-      moved = 0;
-      startX = e.clientX;
-      startLeft = track.scrollLeft;
-      track.classList.add('dragging');
-    });
-    addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      const dx = e.clientX - startX;
-      moved = Math.max(moved, Math.abs(dx));
-      if (moved > 4) track.scrollLeft = startLeft - dx;
-    });
-    addEventListener('pointerup', () => {
-      if (!dragging) return;
-      dragging = false;
-      track.classList.remove('dragging');
-      if (moved > 4) go(current()); // доводим до ближайшего кадра
-    });
-    track.addEventListener('click', (e) => moved > 6 && e.preventDefault(), true);
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setActive(Number((e.target as HTMLElement).dataset.step))),
+      { rootMargin: '-50% 0px -50% 0px' },
+    );
+    steps.forEach((s) => io.observe(s));
+    dots.forEach((d, i) => d.addEventListener('click', () => steps[i].scrollIntoView({ behavior: 'smooth', block: 'center' })));
   });
 </script>
 
@@ -156,7 +140,7 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
       img.width = Number(a.dataset.w);
       img.height = Number(a.dataset.h);
       caption.textContent = a.dataset.caption ?? '';
-      // Сначала — уже загруженный кадр из карусели: иначе долю секунды видно прошлую картинку,
+      // Сначала — уже загруженный кадр со сцены: иначе долю секунды видно прошлую картинку,
       // пока грузится полноразмерная. Подменяем, только когда она декодирована.
       img.src = thumb?.currentSrc || a.href;
       if (img.src !== a.href) {
@@ -166,62 +150,74 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
         full.decode ? full.decode().then(swap, swap) : full.addEventListener('load', swap);
       }
     };
-    links.forEach((a, i) =>
+    // Пока картинка открыта, страница под ней стоит на месте: иначе закрываешь — а ты уже
+    // в другом месте кейса. Полосу прокрутки компенсируем отступом, чтобы вёрстка не дёргалась.
+    const scroller = dialog.querySelector<HTMLElement>('[data-lb-scroll]')!;
+    const lock = () => {
+      document.body.style.paddingRight = `${innerWidth - document.documentElement.clientWidth}px`;
+      document.body.style.overflow = 'hidden';
+    };
+    const unlock = () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+    const centre = () => {
+      scroller.scrollLeft = (scroller.scrollWidth - scroller.clientWidth) / 2;
+      scroller.scrollTop = (scroller.scrollHeight - scroller.clientHeight) / 2;
+    };
+    const zoom = (on: boolean) => {
+      dialog.classList.toggle('zoomed', on);
+      requestAnimationFrame(centre);
+    };
+
+    links.forEach((a, i) => {
       a.addEventListener('click', (e) => {
         e.preventDefault();
         show(i);
+        lock();
         dialog.showModal();
-      }),
-    );
+        requestAnimationFrame(centre);
+      });
+      // полный размер подтягиваем заранее — тогда открытие мгновенное
+      a.addEventListener('pointerenter', () => void (new Image().src = a.href), { once: true });
+    });
     dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
-    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => show(current - 1));
-    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => show(current + 1));
-    dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => (zoom(false), show(current - 1)));
+    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => (zoom(false), show(current + 1)));
+    img.addEventListener('click', () => zoom(!dialog.classList.contains('zoomed')));
+    dialog.addEventListener('click', (e) => (e.target === dialog || e.target === scroller) && dialog.close());
+    dialog.addEventListener('close', () => {
+      unlock();
+      zoom(false);
+    });
     dialog.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') show(current - 1);
-      if (e.key === 'ArrowRight') show(current + 1);
+      if (e.key === 'ArrowLeft') (zoom(false), show(current - 1));
+      if (e.key === 'ArrowRight') (zoom(false), show(current + 1));
     });
     if (links.length < 2) dialog.querySelectorAll<HTMLElement>('.lb-nav').forEach((b) => (b.hidden = true));
   }
 </script>
 
 <style>
-  .carousel {
+  /* Обычный список кадров — состояние без JS и при «уменьшить движение» */
+  .frames {
     display: grid;
-    gap: 16px;
+    gap: 24px;
   }
-  .track {
-    display: flex;
-    gap: 16px;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    cursor: grab;
+  /* экраны телефона в списке — рядами по своей ширине, а не во всю колонку */
+  .phones .frames {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 220px));
+    gap: 20px;
   }
-  .track::-webkit-scrollbar {
-    display: none;
-  }
-  .track.dragging {
-    cursor: grabbing;
-    scroll-snap-type: none;
-    scroll-behavior: auto;
-  }
-  .track:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 4px;
-    border-radius: var(--radius);
-  }
-  .slide {
-    flex: 0 0 auto;
-    width: min(86vw, 880px);
+  .shot {
     display: grid;
     gap: 10px;
     margin: 0;
-    scroll-snap-align: start;
   }
-  .phones .slide {
-    width: min(45vw, 280px);
+  .steps,
+  .dots,
+  .caps {
+    display: none;
   }
   .zoom {
     position: relative;
@@ -237,7 +233,6 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
     width: 100%;
     height: auto;
     transition: scale 0.5s var(--ease);
-    -webkit-user-drag: none;
   }
   .zoom:hover :global(img) {
     scale: 1.015;
@@ -270,47 +265,112 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
     line-height: 1.45;
   }
 
-  .bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+  /* Листание прокруткой: сцена закреплена, кадры сменяют друг друга */
+  .is-live {
+    display: grid;
   }
-  .count {
-    font-size: 13px;
-    letter-spacing: 0.06em;
+  .is-live .stage,
+  .is-live .steps {
+    grid-area: 1 / 1;
+  }
+  .is-live {
+    --stage-h: min(72svh, 660px);
+  }
+  .is-live .stage {
+    position: sticky;
+    /* по центру области под шапкой, иначе снизу остаётся пустая полоса */
+    top: calc(var(--header-h) + (100svh - var(--header-h) - var(--stage-h)) / 2);
+    align-self: start;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    gap: 14px;
+    height: var(--stage-h);
+  }
+  /* размер кадра считаем в единицах этого контейнера: проценты высоты внутри сетки
+     не разрешаются, и картинка оставалась в своём размере */
+  .is-live .frames {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    container-type: size;
+    gap: 0;
+    min-height: 0;
+  }
+  .is-live .shot {
+    grid-area: 1 / 1;
+    place-items: center;
+    min-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(16px) scale(0.99);
+    transition: opacity 0.45s var(--ease), transform 0.6s var(--ease), visibility 0s linear 0.45s;
+  }
+  .is-live .shot.on {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s, 0s, 0s;
+  }
+  .is-live .zoom {
+    display: block;
+    max-width: 100cqw;
+    max-height: 100cqh;
+  }
+  .is-live .zoom :global(img) {
+    width: auto;
+    height: auto;
+    max-width: 100cqw;
+    max-height: 100cqh;
+  }
+  .is-live figcaption {
+    display: none;
+  }
+  .is-live .caps {
+    display: grid;
+    min-height: 2.9em;
+  }
+  .cap {
+    grid-area: 1 / 1;
+    margin: 0;
+    text-align: center;
+    text-wrap: balance;
     color: var(--ink-3);
+    font-size: 14px;
+    line-height: 1.45;
+    opacity: 0;
+    transition: opacity 0.35s var(--ease);
   }
-  .navs {
+  .cap.on {
+    opacity: 1;
+  }
+  .is-live .steps {
+    display: grid;
+    pointer-events: none;
+  }
+  .is-live .step {
+    height: 80svh;
+  }
+  .is-live .dots {
     display: flex;
+    justify-content: center;
     gap: 8px;
   }
-  .nav {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 999px;
-    color: var(--ink);
-    background: transparent;
-    border: 1px solid var(--line-2);
-    transition: background-color 0.2s, opacity 0.2s, border-color 0.2s;
+  .dot {
+    width: 34px;
+    padding: 8px 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
   }
-  .nav:hover:not(:disabled) {
-    background: var(--paper-3);
+  .dot-fill {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--line-2);
+    transition: background-color 0.3s;
   }
-  .nav:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
-
-  /* на телефоне кадры выходят за поля — видно, что список листается */
-  @media (max-width: 767px) {
-    .track {
-      margin-inline: calc(-1 * var(--gutter));
-      padding-inline: var(--gutter);
-      scroll-padding-inline: var(--gutter);
-    }
+  .dot.on .dot-fill,
+  .dot:hover .dot-fill {
+    background: var(--accent);
   }
 
   .lightbox {
@@ -326,18 +386,44 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
   }
   .lightbox[open] {
     display: grid;
-    place-items: center;
   }
   .lightbox::backdrop {
     background: transparent;
   }
+  .lb-scroll {
+    display: grid;
+    place-items: center;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .lb-scroll::-webkit-scrollbar {
+    display: none;
+  }
   .lightbox img {
-    max-width: min(100%, 1800px);
-    max-height: calc(100dvh - 140px);
+    /* высота в единицах окна: проценты внутри прокручиваемой области не разрешаются */
+    max-width: 100%;
+    max-height: calc(100dvh - 128px);
     width: auto;
     height: auto;
     border-radius: 12px;
     object-fit: contain;
+    cursor: zoom-in;
+  }
+  /* по клику — исходный размер с прокруткой, когда нужно разглядеть мелочи */
+  .lightbox.zoomed img {
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    cursor: zoom-out;
+  }
+  /* на телефоне широкий скриншот во всю ширину — нечитаемая полоска в 180px высотой,
+     поэтому открываем его во всю высоту и листаем вбок */
+  @media (max-width: 767px) and (orientation: portrait) {
+    .lightbox img {
+      max-width: none;
+      height: calc(100dvh - 128px);
+    }
   }
   .lb-caption {
     position: absolute;

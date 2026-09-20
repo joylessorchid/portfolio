@@ -33,14 +33,14 @@ export const profile = {
   } satisfies L10n,
 
   stats: [
-    { value: { ru: '3 300+', en: '3,300+' }, label: { ru: 'пользователей у Telegram-бота', en: 'Telegram bot users' } },
+    { value: { ru: '4 700+', en: '4,700+' }, label: { ru: 'пользователей у Telegram-бота', en: 'Telegram bot users' } },
     { value: { ru: '40', en: '40' }, label: { ru: 'операторов на телефонии, поднятой с нуля', en: 'call-center agents on telephony built from scratch' } },
     { value: { ru: '3+', en: '3+' }, label: { ru: 'года в продакшене: деплой, мониторинг, инциденты', en: 'years in production: deploys, monitoring, incidents' } },
   ] satisfies { value: L10n; label: L10n }[],
 
   marquee: {
-    ru: ['VoiceManager — голосовой AI-агент', 'GadgetPick — магазин с нуля', 'Бот с расписанием — 3 300+ студентов', 'n8n-пайплайны', 'Homelab на Proxmox', 'Asterisk на 40 операторов'],
-    en: ['VoiceManager — voice AI agent', 'GadgetPick — a store from scratch', 'Schedule bot — 3,300+ students', 'n8n pipelines', 'Proxmox homelab', 'Asterisk for 40 agents'],
+    ru: ['VoiceManager — голосовой AI-агент', 'GadgetPick — магазин с нуля', 'Бот с расписанием — 4 700+ студентов', 'n8n-пайплайны', 'Homelab на Proxmox', 'Asterisk на 40 операторов'],
+    en: ['VoiceManager — voice AI agent', 'GadgetPick — a store from scratch', 'Schedule bot — 4,700+ students', 'n8n pipelines', 'Proxmox homelab', 'Asterisk for 40 agents'],
   } satisfies L10n<string[]>,
 
   now: {

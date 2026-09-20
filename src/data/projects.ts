@@ -289,8 +289,8 @@ export const projects: Project[] = [
     title: { ru: 'Бот с расписанием', en: 'Schedule bot' },
     tag: { ru: 'Telegram Mini App', en: 'Telegram Mini App' },
     tagline: {
-      ru: 'Telegram-бот и Mini App с расписанием и AI-ассистентом для 3 300+ студентов',
-      en: 'A Telegram bot and Mini App with class schedules and an AI assistant for 3,300+ students',
+      ru: 'Telegram-бот и Mini App с расписанием и AI-ассистентом для 4 700+ студентов',
+      en: 'A Telegram bot and Mini App with class schedules and an AI assistant for 4,700+ students',
     },
     summary: {
       ru: 'Расписание групп и преподавателей прямо в Telegram: пары на день, календарь на месяц, уведомления об изменениях и диалог с AI. Новый интерфейс Mini App — со светлой и тёмной темами, акцентными цветами и живыми фонами.',
@@ -354,8 +354,8 @@ export const projects: Project[] = [
       },
     ],
     cv: {
-      ru: 'Telegram-бот и Mini App с расписанием и AI-ассистентом для 3 300+ студентов МПГУ: NestJS, PostgreSQL, Redis, RabbitMQ, OpenRouter; деплой, on-call, мониторинг.',
-      en: 'Telegram bot and Mini App with schedules and an AI assistant for 3,300+ MPGU students: NestJS, PostgreSQL, Redis, RabbitMQ, OpenRouter; deployment, on-call, monitoring.',
+      ru: 'Telegram-бот и Mini App с расписанием и AI-ассистентом для 4 700+ студентов МПГУ: NestJS, PostgreSQL, Redis, RabbitMQ, OpenRouter; деплой, on-call, мониторинг.',
+      en: 'Telegram bot and Mini App with schedules and an AI assistant for 4,700+ MPGU students: NestJS, PostgreSQL, Redis, RabbitMQ, OpenRouter; deployment, on-call, monitoring.',
     },
   },
   {
