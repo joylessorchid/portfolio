@@ -32,7 +32,7 @@ export const skills: SkillGroup[] = [
   },
   {
     title: { ru: 'Облака', en: 'Cloud' },
-    items: ['Yandex Cloud', 'Selectel', 'Timeweb Cloud', 'Hostinger', 'DigitalOcean'],
+    items: ['Yandex Cloud', 'Selectel', 'Timeweb Cloud', 'AWS', 'Google Cloud', 'Azure', 'Hostinger', 'DigitalOcean'],
   },
   {
     title: { ru: 'Дизайн', en: 'Design' },

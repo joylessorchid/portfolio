@@ -21,33 +21,42 @@ const items = await Promise.all(
 const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
 ---
 
-<div class:list={['gallery', { phones }]} data-gallery>
-  {
-    items.map(({ shot, full }, i) => (
-      <figure class:list={['item', 'reveal', { wide: !phones && i === 0 }]}>
-        <a
-          class="zoom"
-          href={full.src}
-          data-lightbox
-          data-caption={shot.alt[lang]}
-          data-w={full.attributes.width}
-          data-h={full.attributes.height}
-          aria-label={`${t.project.openImage}: ${shot.alt[lang]}`}
-        >
-          <Image
-            src={shot.src}
-            alt={shot.alt[lang]}
-            widths={phones ? [320, 480, 640] : [640, 960, 1280, 1600, 1920]}
-            sizes={phones ? '(min-width: 960px) 240px, 45vw' : i === 0 ? '(min-width: 1440px) 1280px, 92vw' : '(min-width: 1440px) 632px, (min-width: 768px) 46vw, 92vw'}
-            quality={84}
-            class="reveal-zoom"
-          />
-          <span class="hint" aria-hidden="true"><Icon name="expand" size={16} /></span>
-        </a>
-        <figcaption>{shot.alt[lang]}</figcaption>
-      </figure>
-    ))
-  }
+<div class:list={['carousel', 'reveal', { phones }]} data-gallery>
+  <div class="track" data-track tabindex="0" role="group" aria-label={t.project.screens}>
+    {
+      items.map(({ shot, full }) => (
+        <figure class="slide">
+          <a
+            class="zoom"
+            href={full.src}
+            data-lightbox
+            data-caption={shot.alt[lang]}
+            data-w={full.attributes.width}
+            data-h={full.attributes.height}
+            aria-label={`${t.project.openImage}: ${shot.alt[lang]}`}
+          >
+            <Image
+              src={shot.src}
+              alt={shot.alt[lang]}
+              widths={phones ? [320, 480, 640] : [640, 960, 1280, 1600, 1920]}
+              sizes={phones ? '(min-width: 622px) 280px, 45vw' : '(min-width: 1024px) 880px, 86vw'}
+              quality={84}
+            />
+            <span class="hint" aria-hidden="true"><Icon name="expand" size={16} /></span>
+          </a>
+          <figcaption>{shot.alt[lang]}</figcaption>
+        </figure>
+      ))
+    }
+  </div>
+
+  <div class="bar">
+    <p class="count mono"><span data-count>1</span> {t.project.of} {items.length}</p>
+    <div class="navs">
+      <button class="nav" type="button" data-prev aria-label="←"><Icon name="arrow-left" /></button>
+      <button class="nav" type="button" data-next aria-label="→"><Icon name="arrow-right" /></button>
+    </div>
+  </div>
 </div>
 
 <dialog class="lightbox" data-lightbox-dialog aria-label={t.project.screens}>
@@ -59,6 +68,80 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
 </dialog>
 
 <script>
+  // Карусель: пролистывание мышью, пальцем, стрелками и кнопками; снап по кадрам.
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-track]');
+    const slides = [...root.querySelectorAll<HTMLElement>('.slide')];
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]');
+    const next = root.querySelector<HTMLButtonElement>('[data-next]');
+    const count = root.querySelector<HTMLElement>('[data-count]');
+    if (!track || !prev || !next || !count || !slides.length) return;
+
+    const current = () => {
+      const left = track.getBoundingClientRect().left + parseFloat(getComputedStyle(track).paddingLeft);
+      let best = 0;
+      let dist = Infinity;
+      slides.forEach((s, i) => {
+        const d = Math.abs(s.getBoundingClientRect().left - left);
+        if (d < dist) {
+          dist = d;
+          best = i;
+        }
+      });
+      return best;
+    };
+    const sync = () => {
+      count.textContent = String(current() + 1);
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
+    };
+    const go = (i: number) =>
+      slides[Math.max(0, Math.min(slides.length - 1, i))].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+
+    // Кадры за краем экрана браузер откладывает (по горизонтали он их «не видит»), и при
+    // пролистывании слайд оказывался пустым. Как только карусель подходит к экрану — грузим все.
+    new IntersectionObserver((entries, obs) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      root.querySelectorAll('img').forEach((im) => (im.loading = 'eager'));
+      obs.disconnect();
+    }, { rootMargin: '300px' }).observe(root);
+
+    prev.addEventListener('click', () => go(current() - 1));
+    next.addEventListener('click', () => go(current() + 1));
+    track.addEventListener('scroll', () => requestAnimationFrame(sync), { passive: true });
+    addEventListener('resize', sync);
+    sync();
+
+    // Протаскивание мышью, как в лендингах; на тач-экранах работает родная прокрутка.
+    let dragging = false;
+    let startX = 0;
+    let startLeft = 0;
+    let moved = 0;
+    track.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      dragging = true;
+      moved = 0;
+      startX = e.clientX;
+      startLeft = track.scrollLeft;
+      track.classList.add('dragging');
+    });
+    addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      if (moved > 4) track.scrollLeft = startLeft - dx;
+    });
+    addEventListener('pointerup', () => {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove('dragging');
+      if (moved > 4) go(current()); // доводим до ближайшего кадра
+    });
+    track.addEventListener('click', (e) => moved > 6 && e.preventDefault(), true);
+  });
+</script>
+
+<script>
   const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox-dialog]');
   const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-lightbox]'));
   if (dialog && links.length) {
@@ -68,11 +151,20 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
     const show = (i: number) => {
       current = (i + links.length) % links.length;
       const a = links[current];
-      img.src = a.href;
+      const thumb = a.querySelector('img');
       img.alt = a.dataset.caption ?? '';
       img.width = Number(a.dataset.w);
       img.height = Number(a.dataset.h);
       caption.textContent = a.dataset.caption ?? '';
+      // Сначала — уже загруженный кадр из карусели: иначе долю секунды видно прошлую картинку,
+      // пока грузится полноразмерная. Подменяем, только когда она декодирована.
+      img.src = thumb?.currentSrc || a.href;
+      if (img.src !== a.href) {
+        const full = new Image();
+        full.src = a.href;
+        const swap = () => links[current] === a && (img.src = a.href);
+        full.decode ? full.decode().then(swap, swap) : full.addEventListener('load', swap);
+      }
     };
     links.forEach((a, i) =>
       a.addEventListener('click', (e) => {
@@ -94,13 +186,42 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
 </script>
 
 <style>
-  .gallery {
+  .carousel {
     display: grid;
     gap: 16px;
   }
-  .item {
+  .track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    cursor: grab;
+  }
+  .track::-webkit-scrollbar {
+    display: none;
+  }
+  .track.dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+  }
+  .track:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: var(--radius);
+  }
+  .slide {
+    flex: 0 0 auto;
+    width: min(86vw, 880px);
     display: grid;
     gap: 10px;
+    margin: 0;
+    scroll-snap-align: start;
+  }
+  .phones .slide {
+    width: min(45vw, 280px);
   }
   .zoom {
     position: relative;
@@ -112,12 +233,17 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
     cursor: zoom-in;
   }
   .zoom :global(img) {
+    display: block;
     width: 100%;
     height: auto;
     transition: scale 0.5s var(--ease);
+    -webkit-user-drag: none;
   }
   .zoom:hover :global(img) {
     scale: 1.015;
+  }
+  .phones .zoom {
+    border-radius: 24px;
   }
   .hint {
     position: absolute;
@@ -143,19 +269,47 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
     font-size: 14px;
     line-height: 1.45;
   }
-  .phones {
-    /* на телефонах 320px — всё равно две колонки, а не пять экранов друг под другом */
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
   }
-  .phones .zoom {
-    border-radius: 24px;
+  .count {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
   }
-  @media (min-width: 768px) {
-    .gallery:not(.phones) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .wide {
-      grid-column: 1 / -1;
+  .navs {
+    display: flex;
+    gap: 8px;
+  }
+  .nav {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line-2);
+    transition: background-color 0.2s, opacity 0.2s, border-color 0.2s;
+  }
+  .nav:hover:not(:disabled) {
+    background: var(--paper-3);
+  }
+  .nav:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  /* на телефоне кадры выходят за поля — видно, что список листается */
+  @media (max-width: 767px) {
+    .track {
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
     }
   }
 
