@@ -28,14 +28,14 @@ const rest = projects.filter((p) => !p.featured);
       <div class="list">
         {
           projects.map((p, i) => (
-            <button type="button" class:list={['row', { on: i === 0 }]} data-idx={i} aria-current={i === 0 ? 'true' : 'false'}>
+            <a class:list={['row', { on: i === 0 }]} href={caseUrl(p.slug)} data-idx={i} aria-current={i === 0 ? 'true' : 'false'} data-astro-prefetch>
               <span class="num mono">{String(i + 1).padStart(2, '0')}</span>
               <span class="mid">
                 <span class="name display">{p.title[lang]}</span>
                 <span class="tagline">{p.tag[lang]}</span>
               </span>
               <span class="year mono">{year(p.period.ru)}</span>
-            </button>
+            </a>
           ))
         }
       </div>
@@ -118,7 +118,7 @@ const rest = projects.filter((p) => !p.featured);
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-explorer]').forEach((root) => {
-    const rows = Array.from(root.querySelectorAll<HTMLButtonElement>('.row'));
+    const rows = Array.from(root.querySelectorAll<HTMLAnchorElement>('.row'));
     const layers = Array.from(root.querySelectorAll<HTMLElement>('.layer'));
     const infos = Array.from(root.querySelectorAll<HTMLElement>('.info'));
     const stage = root.querySelector<HTMLElement>('[data-stage]');
@@ -135,14 +135,17 @@ const rest = projects.filter((p) => !p.featured);
       // цвет подложки берём у активного слоя, чтобы он плавно перетёк
       if (stage && layers[i]) stage.style.setProperty('--stage-bg', getComputedStyle(layers[i]).getPropertyValue('--tint'));
     };
+    // Наведение и фокус показывают проект на сцене, клик по строке открывает кейс.
     rows.forEach((r, i) => {
       r.addEventListener('mouseenter', () => activate(i));
       r.addEventListener('focus', () => activate(i));
-      r.addEventListener('click', () => activate(i));
     });
-    // «Открыть кейс»: сцена перетекает в шапку страницы кейса (имя перехода — только на этот клик)
-    root.querySelectorAll<HTMLAnchorElement>('.info a').forEach((a) =>
+    // Переход в кейс — по строке списка или по «Открыть кейс»: сцена перетекает в шапку
+    // страницы кейса (имя перехода ставим только на этот клик)
+    root.querySelectorAll<HTMLAnchorElement>('.row, .info a').forEach((a) =>
       a.addEventListener('click', () => {
+        const i = rows.indexOf(a);
+        if (i >= 0) activate(i); // на сцене — именно тот проект, в который переходим
         if (stage) stage.style.viewTransitionName = 'case-hero';
       }),
     );

@@ -40,7 +40,7 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
             widths={phones ? [320, 480, 640, 960] : [640, 960, 1280, 1600, 1920]}
             sizes={
               phones
-                ? '220px'
+                ? '(min-width: 560px) 220px, 45vw'
                 : i === 0
                   ? '(min-width: 1440px) 1280px, 92vw'
                   : '(min-width: 1440px) 632px, (min-width: 768px) 46vw, 92vw'
@@ -150,10 +150,22 @@ const phones = shots.length > 0 && shots.every((s) => s.device === 'phone');
     display: grid;
     gap: 16px;
   }
-  /* экраны телефона — рядами по своей ширине, а не во всю колонку */
+  /* Экраны телефона: на телефоне по два в ряд, дальше — по 220px; ряды выровнены по центру,
+     чтобы кадры не прижимались к левому краю, а одиночный последний стоял посередине */
   .phones {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 220px));
-    gap: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+  .phones .shot {
+    flex: 0 0 calc((100% - 16px) / 2);
+    min-width: 0;
+  }
+  @media (min-width: 560px) {
+    .phones .shot {
+      flex-basis: 220px;
+    }
   }
   .shot {
     display: grid;
